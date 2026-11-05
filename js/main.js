@@ -1,3 +1,4 @@
+import { apiUrl } from './api.js';
 import { BRAND, SHIPS, PORTS } from './config.js';
 import { fetchShips } from './data/ships.js';
 import { createMap } from './ui/map.js';
@@ -335,7 +336,7 @@ function renderPublishedPane() {
   const rows = schedUi.published || [];
   const actions = `<p class="sched-pub-actions">
     <button type="button" class="ghost-dark" id="fh-fetch-today">Fetch today (Ferryhopper)</button>
-    <a class="ghost-dark" id="fh-open-report" href="/ferries.html" target="_blank" rel="noopener">Open planner</a>
+    <a class="ghost-dark" id="fh-open-report" href="./ferries.html" target="_blank" rel="noopener">Open planner</a>
     <span class="muted">${escapeHtml(schedUi.publishedNote || '')}</span>
   </p>`;
   const body =
@@ -349,7 +350,7 @@ async function fetchFerryhopperToday() {
   const day = new Date().toISOString().slice(0, 10);
   if (pane) pane.innerHTML = `<p class="muted">Fetching Ferryhopper for ${day} (may take a minute)…</p>`;
   try {
-    const res = await fetch(`/api/ferryhopper?date=${day}&refresh=1`, { cache: 'no-store' });
+    const res = await fetch(apiUrl(`api/ferryhopper?date=${day}&refresh=1`), { cache: 'no-store' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || res.statusText);
     const month = (document.getElementById('sched-month')?.value || day).slice(0, 7);
@@ -362,7 +363,7 @@ async function fetchFerryhopperToday() {
 
 async function loadPublished(month) {
   try {
-    const res = await fetch(`/api/ferryhopper?month=${month}`, { cache: 'no-store' });
+    const res = await fetch(apiUrl(`api/ferryhopper?month=${month}`), { cache: 'no-store' });
     const data = await res.json();
     schedUi.published = data.sailings || [];
     schedUi.publishedNote = data.note || `${schedUi.published.length} published sailings`;
@@ -466,7 +467,7 @@ async function openSchedule(monthOverride) {
   if (pub) pub.innerHTML = '';
   if (!dlg.open) dlg.showModal();
   try {
-    const res = await fetch(`/api/month-routes?month=${month}`, { cache: 'no-store' });
+    const res = await fetch(apiUrl(`api/month-routes?month=${month}`), { cache: 'no-store' });
     const data = await res.json();
     schedUi.data = data;
     note.textContent = data.note || '';
@@ -489,7 +490,7 @@ async function openSchedule(monthOverride) {
 async function loadOperators() {
   const mode = 'ship';
   try {
-    const res = await fetch(`/api/operators?mode=${mode}`, { cache: 'no-store' });
+    const res = await fetch(apiUrl(`api/operators?mode=${mode}`), { cache: 'no-store' });
     if (!res.ok) return;
     const body = await res.json();
     renderOps(body.operators, document.getElementById('operators'));
@@ -511,7 +512,7 @@ function fillProviderSelect() {
 
 async function loadProviders() {
   try {
-    const res = await fetch('/api/providers', { cache: 'no-store' });
+    const res = await fetch(apiUrl('api/providers'), { cache: 'no-store' });
     if (!res.ok) return;
     const body = await res.json();
     state.providers = {
@@ -529,7 +530,7 @@ document.getElementById('provider').addEventListener('change', async (e) => {
   const kind = 'ships';
   const body = { ships: id, refetch: kind };
   try {
-    const res = await fetch('/api/providers', {
+    const res = await fetch(apiUrl('api/providers'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -580,7 +581,7 @@ async function editNotesDialog(row) {
   );
   if (links === null) return;
   try {
-    const res = await fetch('/api/notes', {
+    const res = await fetch(apiUrl('api/notes'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key: row.note_key, note, links }),
@@ -602,7 +603,7 @@ async function editNotesDialog(row) {
 }
 
 async function toggleStar(kind, value) {
-  const res = await fetch('/api/stars', {
+  const res = await fetch(apiUrl('api/stars'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ toggle: true, kind, value }),
@@ -613,7 +614,7 @@ async function toggleStar(kind, value) {
 
 async function clearAllStars() {
   if (!window.confirm('Remove every star (vessels, destinations)?')) return;
-  const res = await fetch('/api/stars', {
+  const res = await fetch(apiUrl('api/stars'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ clear: 'all' }),
@@ -660,7 +661,7 @@ document.getElementById('star-clear')?.addEventListener('click', async () => {
 syncStarButtonLabels();
 
 document.getElementById('dashboard')?.addEventListener('click', () => {
-  window.open('/api/dashboard?mode=ships&format=html', '_blank');
+  window.open(apiUrl('api/dashboard?mode=ships&format=html'), '_blank');
 });
 
 document.querySelectorAll('[data-mode]').forEach((btn) => {

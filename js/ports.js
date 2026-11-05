@@ -1,3 +1,5 @@
+import { apiUrl, apiErrorMessage, isStaticHost } from './api.js';
+import { PORTS as STATIC_PORTS } from './config.js';
 const statusEl = document.getElementById('ports-status');
 const hubEl = document.getElementById('ports-hub');
 const tbody = document.querySelector('#ports-table tbody');
@@ -59,7 +61,7 @@ function drawFacilities(list, highlightId) {
 
 async function loadHubs() {
   try {
-    const res = await fetch('/api/ferryhopper/ports?country=Greece', { cache: 'no-store' });
+    const res = await fetch(apiUrl('api/ferryhopper/ports?country=Greece'), { cache: 'no-store' });
     const data = await res.json();
     const names = (data.ports || []).map((p) => p.name || p).filter(Boolean);
     hubsList.innerHTML = names
@@ -85,7 +87,7 @@ function facilityOptions(selected) {
 
 async function saveFacility(vessel, leave_facility) {
   setStatus(leave_facility ? `Saving ${vessel}…` : `Resetting ${vessel}…`);
-  const res = await fetch('/api/ferryhopper/vessel-ports', {
+  const res = await fetch(apiUrl('api/ferryhopper/vessel-ports'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ vessel, leave_facility, origin: hubEl.value || 'Rhodes' }),
@@ -162,11 +164,12 @@ async function load() {
   setStatus(`Loading ${hub}…`);
   try {
     const res = await fetch(
-      `/api/ferryhopper/vessel-ports?origin=${encodeURIComponent(hub)}&days=60`,
+      apiUrl(`api/ferryhopper/vessel-ports?origin=${encodeURIComponent(hub)}&days=60`),
       { cache: 'no-store' },
     );
+    if (!res.ok) throw new Error(await apiErrorMessage(res));
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || res.statusText);
+    if (data.error) throw new Error(data.error);
     drawFacilities(data.facilities || []);
     renderTable(data.vessels || []);
     const miss = (data.missing || []).length;
@@ -175,7 +178,12 @@ async function load() {
         (miss ? ` · ${miss} cache files still missing for range` : ''),
     );
   } catch (e) {
-    setStatus(`Failed: ${e.message || e}`);
+    drawFacilities(STATIC_PORTS);
+    renderTable([]);
+    const hint = isStaticHost()
+      ? 'Map shows static port positions — vessel overrides need the local server.'
+      : String(e.message || e);
+    setStatus(hint);
   }
 }
 

@@ -1,5 +1,5 @@
 /* Service worker: shell only. Never intercept /api/ (avoids false 503 on slow AIS). */
-const CACHE = "rpa-shell-v2";
+const CACHE = "rpa-shell-v3";
 const SHELL = ["./", "./index.html", "./css/styles.css", "./icons/icon.svg", "./manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
@@ -14,8 +14,8 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
-  if (url.pathname.startsWith("/api/")) {
-    // bypass SW completely for APIs
+  if (url.pathname.includes("/api/")) {
+    // bypass SW completely for APIs (root or /Rhodes-Port/api/)
     return;
   }
   event.respondWith(

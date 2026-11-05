@@ -1,5 +1,7 @@
 /** Ships API client — keeps last good payload on failure. Search is client-side only. */
 
+import { apiUrl, apiErrorMessage } from '../api.js';
+
 let lastGood = null;
 
 export async function fetchShips({ refresh = false, ports = '', rhodesOnly = true, noCruise = false, starred = false } = {}) {
@@ -13,10 +15,9 @@ export async function fetchShips({ refresh = false, ports = '', rhodesOnly = tru
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 120000);
   try {
-    const res = await fetch(`/api/ships?${params}`, { signal: ctrl.signal, cache: 'no-store' });
+    const res = await fetch(apiUrl(`api/ships?${params}`), { signal: ctrl.signal, cache: 'no-store' });
     if (!res.ok) {
-      const t = await res.text();
-      throw new Error(`Ships API ${res.status}${t ? `: ${t.slice(0, 120)}` : ''}`);
+      throw new Error(await apiErrorMessage(res));
     }
     const body = await res.json();
     if (body.error) throw new Error(body.error);

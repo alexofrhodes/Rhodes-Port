@@ -1,3 +1,4 @@
+import { apiUrl } from './api.js';
 const state = {
   view: 'day',
   ports: [],
@@ -971,14 +972,14 @@ function applySidebar(pos) {
 }
 
 async function loadPorts() {
-  const res = await fetch('/api/ferryhopper/ports', { cache: 'no-store' });
+  const res = await fetch(apiUrl('api/ferryhopper/ports'), { cache: 'no-store' });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'ports failed');
   state.ports = data.ports || [];
   state.ports.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
   let prefs = {};
   try {
-    const pr = await fetch('/api/ferryhopper/prefs', { cache: 'no-store' });
+    const pr = await fetch(apiUrl('api/ferryhopper/prefs'), { cache: 'no-store' });
     prefs = await pr.json();
   } catch {
     /* ignore */
@@ -1065,7 +1066,7 @@ async function loadConnections() {
   const seen = new Set();
   for (const origin of origins) {
     try {
-      const res = await fetch(`/api/ferryhopper/connections?origin=${encodeURIComponent(origin)}`, {
+      const res = await fetch(apiUrl(`api/ferryhopper/connections?origin=${encodeURIComponent(origin)}`), {
         cache: 'no-store',
       });
       const data = await res.json();
@@ -1163,7 +1164,7 @@ async function loadDisruptions(day, { refresh = false } = {}) {
   if (refresh && disruptCountEl) disruptCountEl.textContent = '…';
   if (refresh && disruptRefreshBtn) disruptRefreshBtn.disabled = true;
   try {
-    const res = await fetch(`/api/ferryhopper/disruptions?${q}`, { cache: 'no-store' });
+    const res = await fetch(apiUrl(`api/ferryhopper/disruptions?${q}`), { cache: 'no-store' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || res.statusText);
     disruptState.items = extractDisruptionItems(data);
@@ -1239,7 +1240,7 @@ async function loadSailings({ signal, quiet = false } = {}) {
     setStatus('Loading cache…');
   }
   try {
-    const res = await fetch(`/api/ferryhopper/sailings?${q}`, { cache: 'no-store', signal });
+    const res = await fetch(apiUrl(`api/ferryhopper/sailings?${q}`), { cache: 'no-store', signal });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || res.statusText);
     state.sailings = annotateItineraryVia((data.sailings || []).map((r) => ({ ...r })));
@@ -1281,7 +1282,7 @@ async function fetchOneUnit(unit, dests, signal) {
   });
   if (skip) q.set('skip_cached', '1');
   if (dests) q.set('dests', dests);
-  const res = await fetch(`/api/ferryhopper/sailings?${q}`, { cache: 'no-store', signal });
+  const res = await fetch(apiUrl(`api/ferryhopper/sailings?${q}`), { cache: 'no-store', signal });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || res.statusText);
   return data;
@@ -1373,7 +1374,7 @@ async function clearCacheSlice() {
     return;
   }
   try {
-    const res = await fetch('/api/ferryhopper/cache', {
+    const res = await fetch(apiUrl('api/ferryhopper/cache'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1417,7 +1418,7 @@ async function savePrefs() {
   };
   localStorage.setItem('fh_prefs', JSON.stringify(body));
   try {
-    await fetch('/api/ferryhopper/prefs', {
+    await fetch(apiUrl('api/ferryhopper/prefs'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -1436,7 +1437,7 @@ async function clearAllSailingCache() {
     return;
   }
   try {
-    const res = await fetch('/api/ferryhopper/cache', {
+    const res = await fetch(apiUrl('api/ferryhopper/cache'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ all: true }),
@@ -1545,7 +1546,7 @@ function fillLocForm(r) {
 
 async function refreshLocalList() {
   try {
-    const res = await fetch('/api/ferryhopper/local', { cache: 'no-store' });
+    const res = await fetch(apiUrl('api/ferryhopper/local'), { cache: 'no-store' });
     const data = await res.json();
     const rows = data.sailings || [];
     locListEl.innerHTML = rows.length
@@ -1563,7 +1564,7 @@ async function refreshLocalList() {
       : '<li>No local entries yet.</li>';
     locListEl.querySelectorAll('.loc-del').forEach((btn) => {
       btn.addEventListener('click', async () => {
-        await fetch(`/api/ferryhopper/local?id=${encodeURIComponent(btn.dataset.id)}`, { method: 'DELETE' });
+        await fetch(apiUrl(`api/ferryhopper/local?id=${encodeURIComponent(btn.dataset.id)}`), { method: 'DELETE' });
         await refreshLocalList();
         await loadSailings();
       });
@@ -1587,7 +1588,7 @@ async function addLocalSailing() {
   const updating = !!body.id;
   if (updating) body.action = 'update';
   try {
-    const res = await fetch('/api/ferryhopper/local', {
+    const res = await fetch(apiUrl('api/ferryhopper/local'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -2648,7 +2649,7 @@ async function openDetails(tripId) {
   body.textContent = 'Loading…';
   dlg.showModal();
   try {
-    const res = await fetch(`/api/ferryhopper/trip?id=${encodeURIComponent(tripId)}`, { cache: 'no-store' });
+    const res = await fetch(apiUrl(`api/ferryhopper/trip?id=${encodeURIComponent(tripId)}`), { cache: 'no-store' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || res.statusText);
     body.textContent = JSON.stringify(data.details || data, null, 2);
