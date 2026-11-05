@@ -1,6 +1,15 @@
 /* Service worker: shell only. Never intercept /api/ (avoids false 503 on slow AIS). */
-const CACHE = "rpa-shell-v3";
-const SHELL = ["./", "./index.html", "./css/styles.css", "./icons/icon.svg", "./manifest.webmanifest"];
+const CACHE = "rpa-shell-v4";
+const SHELL = [
+  "./",
+  "./index.html",
+  "./ferries.html",
+  "./ports.html",
+  "./live.html",
+  "./css/styles.css",
+  "./icons/icon.svg",
+  "./manifest.webmanifest",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));

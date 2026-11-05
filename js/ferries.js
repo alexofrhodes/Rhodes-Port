@@ -1,4 +1,12 @@
-import { apiUrl } from './api.js';
+import {
+  apiUrl,
+  fetchJson,
+  isStaticHost,
+  loadDataJson,
+  loadStaticSailings,
+  originSlug,
+} from './api.js';
+
 const state = {
   view: 'day',
   ports: [],
@@ -972,15 +980,29 @@ function applySidebar(pos) {
 }
 
 async function loadPorts() {
-  const res = await fetch(apiUrl('api/ferryhopper/ports'), { cache: 'no-store' });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'ports failed');
+  let data;
+  if (isStaticHost()) {
+    data = await loadDataJson('ferryhopper_ports.json');
+  } else {
+    try {
+      data = await fetchJson(apiUrl('api/ferryhopper/ports'));
+    } catch {
+      data = await loadDataJson('ferryhopper_ports.json');
+    }
+  }
   state.ports = data.ports || [];
   state.ports.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
   let prefs = {};
   try {
-    const pr = await fetch(apiUrl('api/ferryhopper/prefs'), { cache: 'no-store' });
-    prefs = await pr.json();
+    if (!isStaticHost()) {
+      prefs = await fetchJson(apiUrl('api/ferryhopper/prefs'));
+    }
+  } catch {
+    /* ignore */
+  }
+  try {
+    const local = JSON.parse(localStorage.getItem('fh_prefs') || '{}');
+    prefs = { ...prefs, ...local };
   } catch {
     /* ignore */
   }
@@ -1066,10 +1088,18 @@ async function loadConnections() {
   const seen = new Set();
   for (const origin of origins) {
     try {
-      const res = await fetch(apiUrl(`api/ferryhopper/connections?origin=${encodeURIComponent(origin)}`), {
-        cache: 'no-store',
-      });
-      const data = await res.json();
+      let data;
+      if (isStaticHost()) {
+        data = await loadDataJson(`ferryhopper_conn_${originSlug(origin)}.json`);
+      } else {
+        try {
+          data = await fetchJson(
+            apiUrl(`api/ferryhopper/connections?origin=${encodeURIComponent(origin)}`),
+          );
+        } catch {
+          data = await loadDataJson(`ferryhopper_conn_${originSlug(origin)}.json`);
+        }
+      }
       for (const d of data.destinations || []) {
         if (seen.has(d.name)) continue;
         seen.add(d.name);
@@ -1164,14 +1194,21 @@ async function loadDisruptions(day, { refresh = false } = {}) {
   if (refresh && disruptCountEl) disruptCountEl.textContent = '…';
   if (refresh && disruptRefreshBtn) disruptRefreshBtn.disabled = true;
   try {
-    const res = await fetch(apiUrl(`api/ferryhopper/disruptions?${q}`), { cache: 'no-store' });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || res.statusText);
+    let data;
+    if (isStaticHost()) {
+      data = await loadDataJson(`ferryhopper_disruptions_GR_${day}.json`);
+    } else {
+      try {
+        data = await fetchJson(apiUrl(`api/ferryhopper/disruptions?${q}`));
+      } catch {
+        data = await loadDataJson(`ferryhopper_disruptions_GR_${day}.json`);
+      }
+    }
     disruptState.items = extractDisruptionItems(data);
     disruptState.error = '';
   } catch (e) {
     disruptState.items = [];
-    disruptState.error = String(e.message || e);
+    disruptState.error = isStaticHost() ? '' : String(e.message || e);
   } finally {
     if (disruptRefreshBtn) disruptRefreshBtn.disabled = false;
     applyDisruptBadge();
@@ -1229,7 +1266,7 @@ function originDayUnits() {
 }
 
 async function loadSailings({ signal, quiet = false } = {}) {
-  const { q, from } = rangeParams();
+  const { q, from, to, originList, direction } = rangeParams();
   if (!quiet) {
     // Persist From/To (and other prefs) whenever the user loads a range.
     try {
@@ -1240,30 +1277,56 @@ async function loadSailings({ signal, quiet = false } = {}) {
     setStatus('Loading cache…');
   }
   try {
-    const res = await fetch(apiUrl(`api/ferryhopper/sailings?${q}`), { cache: 'no-store', signal });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || res.statusText);
+    let data;
+    if (isStaticHost()) {
+      data = await loadStaticSailings({
+        origins: originList,
+        from,
+        to: to || from,
+        direction,
+      });
+    } else {
+      try {
+        data = await fetchJson(apiUrl(`api/ferryhopper/sailings?${q}`), { signal });
+      } catch (e) {
+        if (e.name === 'AbortError') throw e;
+        data = await loadStaticSailings({
+          origins: originList,
+          from,
+          to: to || from,
+          direction,
+        });
+      }
+    }
     state.sailings = annotateItineraryVia((data.sailings || []).map((r) => ({ ...r })));
     state.missing = data.missing || [];
     syncVesselOptions();
     const miss = state.missing.length
-      ? ` · missing ${state.missing.length} day-direction cache files (Fetch fills them)`
+      ? isStaticHost()
+        ? ` · ${state.missing.length} day files not in published cache`
+        : ` · missing ${state.missing.length} day-direction cache files (Fetch fills them)`
       : '';
     const nIn = state.sailings.filter((r) => r.direction === 'in').length;
     const nOut = state.sailings.filter((r) => (r.direction || 'out') !== 'in').length;
     const dirHint =
-      state.direction !== 'out' && nIn === 0 && state.missing.some((m) => String(m).endsWith('|in'))
+      !isStaticHost() &&
+      state.direction !== 'out' &&
+      nIn === 0 &&
+      state.missing.some((m) => String(m).endsWith('|in'))
         ? ' · no returns yet — Fetch with Leaving+returning'
         : '';
+    const mode = data.static || isStaticHost() ? ' · cached (static)' : '';
     setStatus(
-      `${state.sailings.length} legs (${nOut} leave / ${nIn} return) · ${groupVoyages(state.sailings).length} voyages${miss}${dirHint}`,
+      `${state.sailings.length} legs (${nOut} leave / ${nIn} return) · ${groupVoyages(state.sailings).length} voyages${miss}${dirHint}${mode}`,
     );
     if (!quiet) await loadDisruptions(from);
     render();
     if (!quiet) {
       await savePrefs();
-      await refreshLocalList();
-      syncLocalDatalists();
+      if (!isStaticHost()) {
+        await refreshLocalList();
+        syncLocalDatalists();
+      }
     }
   } catch (e) {
     if (e.name === 'AbortError') return;
@@ -1417,6 +1480,7 @@ async function savePrefs() {
     board_to: dateEndEl.value || '',
   };
   localStorage.setItem('fh_prefs', JSON.stringify(body));
+  if (isStaticHost()) return;
   try {
     await fetch(apiUrl('api/ferryhopper/prefs'), {
       method: 'POST',
@@ -1426,6 +1490,28 @@ async function savePrefs() {
   } catch {
     /* ignore */
   }
+}
+
+function applyStaticUi() {
+  if (!isStaticHost()) return;
+  document.body.classList.add('fh-static');
+  for (const id of [
+    'fh-fetch',
+    'fh-skip',
+    'fh-clear-cache',
+    'fh-clear-all-cache',
+    'fh-local-open',
+    'loc-new',
+    'loc-add',
+  ]) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.disabled = true;
+    el.hidden = true;
+  }
+  document.getElementById('fh-skip')?.closest('label')?.setAttribute('hidden', '');
+  document.getElementById('loc-list')?.closest('details')?.setAttribute('hidden', '');
+  document.getElementById('loc-list')?.parentElement?.setAttribute('hidden', '');
 }
 
 async function clearAllSailingCache() {
@@ -3013,6 +3099,7 @@ function syncStickyTop() {
 }
 
 async function init() {
+  applyStaticUi();
   if (!dateEl.value) dateEl.value = todayISO();
   setStatus('Loading ports…');
   syncStickyTop();

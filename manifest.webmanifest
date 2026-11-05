@@ -2,7 +2,7 @@
   "name": "Rhodes Port Tracker",
   "short_name": "Rhodes Port",
   "description": "Live ships and ferry planner for Rhodes ports.",
-  "start_url": "./",
+  "start_url": "./ferries.html",
   "display": "standalone",
   "background_color": "#0a3d4a",
   "theme_color": "#0a3d4a",

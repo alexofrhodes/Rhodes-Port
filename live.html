@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a3d4a" />
+    <meta name="description" content="Live AIS ships calling Rhodes ports." />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <title>Rhodes Port Tracker</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true"></div>
+    <div class="app-shell">
+    <nav class="app-nav no-print" aria-label="Tools">
+      <a href="./ferries.html">Ferries</a>
+      <a href="./ports.html">Ports</a>
+      <a href="./live.html" data-nav-live aria-current="page">Live</a>
+      <button type="button" id="about-btn" class="nav-about" title="My info" aria-label="My info">?</button>
+    </nav>
+    <div class="app-stage">
+    <header class="top">
+      <div class="brand-block">
+        <h1 id="brand">Rhodes Port Tracker</h1>
+        <p id="index-count" class="index-count">—</p>
+      </div>
+      <div class="controls">
+        <button type="button" id="dashboard" class="ghost">Dash</button>
+        <p id="status-line" class="status" aria-live="polite">Starting…</p>
+      </div>
+    </header>
+
+    <div class="stale-slot" aria-live="polite">
+      <div id="stale-banner" class="stale-banner is-empty" role="status"></div>
+    </div>
+
+    <section class="filters panel" id="filters">
+      <div class="filter-row" id="port-filters"></div>
+      <div class="filter-row">
+        <label><input type="checkbox" id="rhodes-only" checked /> In port + will dock</label>
+        <label><input type="checkbox" id="no-cruise" checked /> Hide cruise</label>
+        <label class="provider-label">Provider
+          <select id="provider" title="Data provider"></select>
+        </label>
+        <span class="search-wrap">
+          <input type="search" id="q" placeholder="Search… (space = multi)" autocomplete="off" title="Space-separated partials; all must match" />
+          <button type="button" id="q-clear" class="q-clear" title="Clear search" aria-label="Clear search">✕</button>
+        </span>
+        <button type="button" id="refresh" class="ghost-dark" title="Refresh live AIS">Refresh</button>
+        <button type="button" id="print" class="ghost-dark" title="Print current filtered table">Print</button>
+      </div>
+    </section>
+
+    <dialog id="schedule-dialog" class="schedule-dialog">
+      <form method="dialog" class="schedule-head">
+        <h2 id="schedule-title">Month call sheet</h2>
+        <button type="submit" class="ghost-dark" value="close">Close</button>
+      </form>
+      <p id="schedule-note" class="muted"></p>
+      <p id="schedule-stats" class="schedule-stats"></p>
+      <div class="sched-toolbar" id="sched-toolbar">
+        <label class="sched-month-label">Month
+          <input type="month" id="sched-month" />
+        </label>
+        <div class="seg" role="group" aria-label="View">
+          <button type="button" class="seg-btn active" data-view="table">Table</button>
+          <button type="button" class="seg-btn" data-view="cards">Cards</button>
+        </div>
+        <label class="sched-check"><input type="checkbox" id="sched-proj" checked /> Patterns</label>
+        <label class="sched-check"><input type="checkbox" id="sched-cruise" checked /> Cruises</label>
+      </div>
+      <div class="schedule-tabs" role="tablist">
+        <button type="button" class="sched-tab active" data-tab="calls">Call sheet</button>
+        <button type="button" class="sched-tab" data-tab="published">Published (Ferryhopper)</button>
+        <button type="button" class="sched-tab" data-tab="patterns">Route patterns</button>
+      </div>
+      <div class="schedule-scroll">
+        <div id="tab-calls" class="sched-pane active"></div>
+        <div id="tab-published" class="sched-pane" hidden></div>
+        <div id="tab-patterns" class="sched-pane" hidden></div>
+      </div>
+    </dialog>
+
+    <main class="layout layout-live">
+      <aside class="panel side-ops" aria-label="Official links">
+        <h2 class="side-title">Links &amp; contact</h2>
+        <div id="operators" class="ops-list"></div>
+      </aside>
+      <section class="panel map-panel" aria-label="Map">
+        <div id="map"></div>
+      </section>
+      <aside class="panel side-detail" aria-label="Vessel details">
+        <div id="detail" class="detail"></div>
+      </aside>
+      <section class="panel table-panel" aria-label="Live table">
+        <div id="table"></div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p>
+        AIS: Open Waters / facha.
+        Disruptions: Ferryhopper country alerts on the Ferries planner (not a full cancellation feed).
+        Map © OpenStreetMap.
+      </p>
+    </footer>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script type="module" src="./js/nav.js"></script>
+    <script type="module" src="./js/main.js"></script>
+    </div>
+    </div>
+  </body>
+</html>

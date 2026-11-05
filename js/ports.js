@@ -1,5 +1,14 @@
-import { apiUrl, apiErrorMessage, isStaticHost } from './api.js';
+import {
+  apiUrl,
+  apiErrorMessage,
+  fetchJson,
+  isStaticHost,
+  loadDataJson,
+  loadStaticSailings,
+  portKey,
+} from './api.js';
 import { PORTS as STATIC_PORTS } from './config.js';
+
 const statusEl = document.getElementById('ports-status');
 const hubEl = document.getElementById('ports-hub');
 const tbody = document.querySelector('#ports-table tbody');
@@ -8,6 +17,23 @@ const hubsList = document.getElementById('ports-hubs');
 let map;
 let markers = [];
 let facilities = [];
+let readOnly = false;
+
+const FACILITY_BY_OP = {
+  bluestar: 'akandia',
+  dodekanisos: 'akandia',
+  anel: 'akandia',
+  saos: 'akandia',
+  seajets: 'tourist',
+};
+
+const OP_MATCH = [
+  { id: 'bluestar', match: ['blue star', 'bluestar'] },
+  { id: 'seajets', match: ['seajet', 'worldchampion', 'champion jet'] },
+  { id: 'dodekanisos', match: ['dodekanisos', 'sebeco', 'panagia'] },
+  { id: 'anel', match: ['kalymnos', 'anel'] },
+  { id: 'saos', match: ['saos'] },
+];
 
 function setStatus(msg) {
   if (statusEl) statusEl.textContent = msg;
@@ -59,10 +85,121 @@ function drawFacilities(list, highlightId) {
   if (bounds.length) map.fitBounds(bounds, { padding: [28, 28], maxZoom: 12 });
 }
 
+function suggestFacility(operator, origin) {
+  const o = String(origin || '').toUpperCase();
+  if (o.includes('KAMIROU') || o.includes('KAMIROS') || o.includes('SKALA')) return 'kamiros';
+  const opL = String(operator || '').toLowerCase();
+  for (const op of OP_MATCH) {
+    if (op.match.some((m) => m && opL.includes(m))) return FACILITY_BY_OP[op.id] || '';
+  }
+  return '';
+}
+
+function hubKeys(hub) {
+  const k = portKey(hub || 'Rhodes');
+  const set = new Set([k]);
+  if (k === 'RODOS') {
+    set.add(portKey('SKALA KAMIROU(RHO)'));
+  }
+  return set;
+}
+
+function isoDayOffset(base, days) {
+  const d = new Date(`${base}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Client-side mirror of vessel_ports.vessel_table for static Pages. */
+async function buildStaticVesselTable(hub) {
+  const today = new Date().toISOString().slice(0, 10);
+  const from = isoDayOffset(today, -7);
+  const to = isoDayOffset(today, 60);
+  const data = await loadStaticSailings({
+    origins: [hub || 'Rhodes'],
+    from,
+    to,
+    direction: 'out',
+  });
+  let overrides = {};
+  try {
+    const raw = await loadDataJson('vessel_ports.json');
+    overrides = (raw && raw.vessels) || {};
+  } catch {
+    overrides = {};
+  }
+  const hubs = hubKeys(hub);
+  const byVessel = new Map();
+  for (const r of data.sailings || []) {
+    if (!hubs.has(portKey(r.origin))) continue;
+    const vessel = String(r.vessel || '').trim() || '—';
+    let slot = byVessel.get(vessel);
+    if (!slot) {
+      slot = {
+        vessel,
+        operator: r.operator || '',
+        origins: new Map(),
+        dests: new Map(),
+        n: 0,
+      };
+      byVessel.set(vessel, slot);
+    }
+    if (!slot.operator && r.operator) slot.operator = r.operator;
+    const orig = r.origin || '—';
+    slot.origins.set(orig, (slot.origins.get(orig) || 0) + 1);
+    const dest = String(r.dest || '').trim();
+    if (dest) slot.dests.set(dest, (slot.dests.get(dest) || 0) + 1);
+    slot.n += 1;
+  }
+  const top = (m) => [...m.entries()].sort((a, b) => b[1] - a[1]).map(([k]) => k);
+  const vessels = [...byVessel.values()]
+    .sort((a, b) => a.vessel.localeCompare(b.vessel, undefined, { sensitivity: 'base' }))
+    .map((slot) => {
+      const originTop = top(slot.origins)[0] || '';
+      const suggested = suggestFacility(slot.operator, originTop);
+      const leave = overrides[slot.vessel] || suggested;
+      return {
+        vessel: slot.vessel,
+        operator: slot.operator,
+        leave_hub: originTop,
+        leave_facility: leave,
+        suggested_facility: suggested,
+        leave_facility_source: overrides[slot.vessel]
+          ? 'override'
+          : suggested && leave === suggested
+            ? 'seed'
+            : '',
+        dests: top(slot.dests).slice(0, 12),
+        n: slot.n,
+      };
+    });
+  return {
+    facilities: STATIC_PORTS.map((p) => ({
+      id: p.id,
+      name: p.name,
+      name_el: p.name_el || '',
+      role: p.role || '',
+      lat: p.lat,
+      lon: p.lon,
+    })),
+    vessels,
+    missing: data.missing || [],
+    static: true,
+  };
+}
+
 async function loadHubs() {
   try {
-    const res = await fetch(apiUrl('api/ferryhopper/ports?country=Greece'), { cache: 'no-store' });
-    const data = await res.json();
+    let data;
+    if (isStaticHost()) {
+      data = await loadDataJson('ferryhopper_ports.json');
+    } else {
+      try {
+        data = await fetchJson(apiUrl('api/ferryhopper/ports?country=Greece'));
+      } catch {
+        data = await loadDataJson('ferryhopper_ports.json');
+      }
+    }
     const names = (data.ports || []).map((p) => p.name || p).filter(Boolean);
     hubsList.innerHTML = names
       .slice(0, 80)
@@ -86,6 +223,7 @@ function facilityOptions(selected) {
 }
 
 async function saveFacility(vessel, leave_facility) {
+  if (readOnly) return;
   setStatus(leave_facility ? `Saving ${vessel}…` : `Resetting ${vessel}…`);
   const res = await fetch(apiUrl('api/ferryhopper/vessel-ports'), {
     method: 'POST',
@@ -116,25 +254,28 @@ function renderTable(rows) {
       } else if (r.leave_facility_source === 'seed') {
         hint = ` <span class="muted">(seed)</span>`;
       }
-      const resetBtn = isOverride
-        ? ` <button type="button" class="ghost ports-reset" data-vessel="${escapeHtml(
-            r.vessel,
-          )}">Reset</button>`
-        : '';
-      // Select shows effective facility; Auto only when nothing effective.
+      const resetBtn =
+        !readOnly && isOverride
+          ? ` <button type="button" class="ghost ports-reset" data-vessel="${escapeHtml(
+              r.vessel,
+            )}">Reset</button>`
+          : '';
       const selected = r.leave_facility || '';
+      const dis = readOnly ? ' disabled' : '';
       return `<tr data-vessel="${escapeHtml(r.vessel)}">
         <td><strong>${escapeHtml(r.vessel)}</strong></td>
         <td>${escapeHtml(r.operator || '—')}</td>
         <td>${escapeHtml(r.leave_hub || '—')}</td>
         <td class="ports-fac-cell"><select class="ports-fac" data-vessel="${escapeHtml(
           r.vessel,
-        )}">${facilityOptions(selected)}</select>${hint}${resetBtn}</td>
+        )}"${dis}>${facilityOptions(selected)}</select>${hint}${resetBtn}</td>
         <td class="ports-dests">${escapeHtml(dests || '—')}</td>
         <td>${r.n || 0}</td>
       </tr>`;
     })
     .join('');
+
+  if (readOnly) return;
 
   tbody.querySelectorAll('.ports-fac').forEach((sel) => {
     sel.addEventListener('change', async () => {
@@ -162,28 +303,47 @@ async function load() {
   initMap();
   const hub = hubEl.value.trim() || 'Rhodes';
   setStatus(`Loading ${hub}…`);
+  readOnly = false;
   try {
-    const res = await fetch(
-      apiUrl(`api/ferryhopper/vessel-ports?origin=${encodeURIComponent(hub)}&days=60`),
-      { cache: 'no-store' },
-    );
-    if (!res.ok) throw new Error(await apiErrorMessage(res));
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    drawFacilities(data.facilities || []);
+    if (!isStaticHost()) {
+      const res = await fetch(
+        apiUrl(`api/ferryhopper/vessel-ports?origin=${encodeURIComponent(hub)}&days=60`),
+        { cache: 'no-store' },
+      );
+      if (!res.ok) throw new Error(await apiErrorMessage(res));
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      drawFacilities(data.facilities || []);
+      renderTable(data.vessels || []);
+      const miss = (data.missing || []).length;
+      setStatus(
+        `${(data.vessels || []).length} vessels` +
+          (miss ? ` · ${miss} cache files still missing for range` : ''),
+      );
+      return;
+    }
+  } catch (e) {
+    /* fall through to static table */
+    if (!isStaticHost()) {
+      // API down locally — still show cache-backed read-only table
+    }
+  }
+  try {
+    const data = await buildStaticVesselTable(hub);
+    readOnly = true;
+    drawFacilities(data.facilities || STATIC_PORTS);
     renderTable(data.vessels || []);
     const miss = (data.missing || []).length;
+    const where = isStaticHost() ? 'read-only on GitHub Pages' : 'read-only (no API)';
     setStatus(
-      `${(data.vessels || []).length} vessels` +
-        (miss ? ` · ${miss} cache files still missing for range` : ''),
+      `${(data.vessels || []).length} vessels · ${where}` +
+        (miss ? ` · ${miss} day files missing from cache` : ''),
     );
-  } catch (e) {
+  } catch (e2) {
+    readOnly = true;
     drawFacilities(STATIC_PORTS);
     renderTable([]);
-    const hint = isStaticHost()
-      ? 'Map shows static port positions — vessel overrides need the local server.'
-      : String(e.message || e);
-    setStatus(hint);
+    setStatus(String(e2.message || e2));
   }
 }
 
@@ -195,7 +355,9 @@ document.getElementById('about-btn')?.addEventListener('click', () => {
       'Alex of Rhodes\n' +
       'alexofrhodes@gmail.com\n' +
       'https://github.com/alexofrhodes\n\n' +
-      'Facility overrides save to docs/data/vessel_ports.json (shared with the GUI).',
+      (isStaticHost()
+        ? 'GitHub Pages is read-only (map + vessel table from published cache).'
+        : 'Facility overrides save to docs/data/vessel_ports.json (shared with the GUI).'),
   );
 });
 loadHubs();
