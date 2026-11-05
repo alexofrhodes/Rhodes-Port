@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-19",
+  "country": "GR",
+  "retrieved_at": "2026-10-23T05:47:41Z",
+  "data": {
+    "disruptions": [
+      {
+        "type": "Trip Cancellation",
+        "title": "SEAJETS - Trip cancellations and suspensions for ferry SUPERRUNNER JET",
+        "content": "<p>SEAJETS has cancelled or suspended the following SUPERRUNNER JET trips from <strong>12 October to 28 October</strong>:</p><ul><li><p>Paros - Rafina: cancelled.</p></li><li><p>Rafina - Paros - Naxos: suspended.</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      }
+    ]
+  }
+}

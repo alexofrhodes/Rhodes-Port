@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-05",
+  "origin": "SKALA KAMIROU(RHO)",
+  "direction": "out",
+  "retrieved_at": "2026-11-02T07:56:48Z",
+  "destinations": [
+    {
+      "name": "PIRAEUS",
+      "code": "PIR",
+      "country": "Greece"
+    },
+    {
+      "name": "AEGINA",
+      "code": "AEG",
+      "country": "Greece"
+    },
+    {
+      "name": "METHANA",
+      "code": "MET",
+      "country": "Greece"
+    },
+    {
+      "name": "POROS",
+      "code": "POR",
+      "country": "Greece"
+    }
+  ],
+  "n_destinations": 4,
+  "n_sailings": 0,
+  "sailings": [],
+  "errors": [],
+  "source": "Ferryhopper MCP",
+  "note": "Published SKALA KAMIROU(RHO) departures for 2026-11-05 via Ferryhopper MCP (round-trip pack). 0 sailings across 4 destinations."
+}

@@ -1,0 +1,91 @@
+.ports-stage {
+  padding-bottom: 1rem;
+}
+
+/* Hub label sits in dark .fh-top — use foam like ferries date labels */
+.fh-top .fh-controls > label {
+  color: var(--foam, #e8f4f2);
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fh-top .fh-controls > label input {
+  color: var(--ink, #1a2e2a);
+}
+
+.ports-note {
+  margin: 0.35rem 0.75rem 0.75rem;
+  max-width: 52rem;
+  font-size: 0.9rem;
+}
+
+.ports-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 1.4fr);
+  gap: 0.75rem;
+  padding: 0 0.75rem 1rem;
+  min-height: 0;
+}
+
+.ports-map {
+  height: min(70vh, 520px);
+  border-radius: 8px;
+  border: 1px solid var(--line, #d5e0dd);
+  background: #e8f0ee;
+  z-index: 0;
+}
+
+.ports-table-wrap {
+  margin: 0;
+  padding: 0.5rem;
+  overflow: auto;
+  max-height: min(70vh, 520px);
+}
+
+.ports-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.ports-table th,
+.ports-table td {
+  text-align: left;
+  padding: 0.35rem 0.4rem;
+  border-bottom: 1px solid var(--line, #d5e0dd);
+  vertical-align: top;
+}
+
+.ports-table th {
+  position: sticky;
+  top: 0;
+  background: #f3f7f6;
+  z-index: 1;
+}
+
+.ports-table select {
+  max-width: 9rem;
+}
+
+.ports-fac-cell {
+  white-space: nowrap;
+}
+
+.ports-fac-cell .ports-reset {
+  margin-left: 0.35rem;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.75rem;
+}
+
+.ports-dests {
+  color: #445;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 900px) {
+  .ports-layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,1105 @@
+{
+  "retrieved_at": "2026-10-06T09:09:34Z",
+  "country": "Greece",
+  "ports": [
+    {
+      "name": "AEDIPSOS",
+      "code": "AED",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AEGIALI",
+      "code": "AIG",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AEGINA",
+      "code": "AEG",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AG. EFSTRATIOS",
+      "code": "AES",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AG. KIRIAKI",
+      "code": "GRAKM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AG. KIRIKOS",
+      "code": "AGK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AG. KONSTANTINOS",
+      "code": "AGC",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AG. NIKOLAOS",
+      "code": "AGN",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AG. NIKOLAOS (ZAKYNTHOS)",
+      "code": "SHI",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AG. STEFANOS",
+      "code": "GRASF",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AG.MARINA (AEGINA)",
+      "code": "AAM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AG.MARINA (LEROS)",
+      "code": "AGM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AGATHONISI",
+      "code": "AGA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AGIOKAMPOS",
+      "code": "AKA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AGISTRI",
+      "code": "AGS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AGISTRI-MYLI",
+      "code": "AGG",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ALEX/POLI",
+      "code": "AXL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ALMIROPOTAMOS",
+      "code": "ALM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ALONISSOS",
+      "code": "ALO",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AMMOUDI",
+      "code": "GRAMM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "AMMOULIANI",
+      "code": "GRAMI",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ANAFI",
+      "code": "ANA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ANDROS",
+      "code": "AND",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ANTIKYTHIRA",
+      "code": "AKT",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ANTIPAROS",
+      "code": "ANP",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ARGOSTOLI",
+      "code": "ARM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ARKI",
+      "code": "ARK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ARKITSA",
+      "code": "AKR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ASTAKOS",
+      "code": "AST",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ASTYPALEA",
+      "code": "JTY",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "CHALKI",
+      "code": "CHL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "CHANIA",
+      "code": "CHA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "CHIOS",
+      "code": "CHI",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "CHRISOMILEA (FOURNOI)",
+      "code": "CHR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "CORFU",
+      "code": "CFU",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "DELOS",
+      "code": "DEL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "DIAFANI",
+      "code": "DFN",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "DONOUSSA",
+      "code": "DON",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "EREIKOUSSA",
+      "code": "ERK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "EVDILOS",
+      "code": "EYD",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "FANEROMENI, SALAMINA",
+      "code": "GRFNR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "FIRA (SANTORINI)",
+      "code": "GRFIR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "FISKARDO (KEFALONIA)",
+      "code": "FSK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "FOLEGANDROS",
+      "code": "FOL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "FOURNI",
+      "code": "FOU",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "FRIKES (ITHACA)",
+      "code": "FRI",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "GLOSSA",
+      "code": "GLO",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "GLYFA",
+      "code": "GLY",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "GLYKA NERA",
+      "code": "GRGKN",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "GYTHIO",
+      "code": "GYT",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "HERAKLIO",
+      "code": "HER",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "HERMIONI",
+      "code": "ERM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "HYDRA",
+      "code": "HYD",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "IGOUMENITSA",
+      "code": "IGO",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "IKARIA",
+      "code": "IKA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "IOS",
+      "code": "IOS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "IRAKLIA",
+      "code": "IRK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ITHAKI (PISAETOS)",
+      "code": "PSA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KALYMNOS",
+      "code": "KAL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KARDAMENA",
+      "code": "KRM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KARISTOS",
+      "code": "KST",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KARLOVASSI",
+      "code": "KAR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KARPATHOS",
+      "code": "AOK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KASOS",
+      "code": "KSJ",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KASTELLORIZO",
+      "code": "KAZ",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KATAPOLA",
+      "code": "AMO",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KAVALA",
+      "code": "KAV",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KEA",
+      "code": "KEA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KILINI",
+      "code": "KIL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KIMOLOS",
+      "code": "KMS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KISSAMOS",
+      "code": "KIS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KORFOS",
+      "code": "GRKFS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KOS",
+      "code": "KGS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KOS (KEFALOS)",
+      "code": "KFG",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KOUFONISIA",
+      "code": "KOU",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KYMI",
+      "code": "KYM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KYTHIRA",
+      "code": "KTH",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "KYTHNOS",
+      "code": "KYT",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "LAGKADA",
+      "code": "GRLGK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "LAVRIO",
+      "code": "LAV",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "LEFKADA",
+      "code": "LEV",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "LEFKIMMI",
+      "code": "LFK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "LEROS",
+      "code": "LER",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "LIMNOS",
+      "code": "LMN",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "LIPSI",
+      "code": "LIP",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "LIXURI",
+      "code": "LIX",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "LOUTRO CHANION",
+      "code": "LTR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MANTOUDI",
+      "code": "MTI",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MARMARI",
+      "code": "MRM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MASTIHARI",
+      "code": "MAS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MATHRAKI",
+      "code": "MTR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MEGANISI",
+      "code": "MGN",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MEGARA, PERAMA",
+      "code": "GRMEG",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MESTA (CHIOS)",
+      "code": "MHI",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "METHANA",
+      "code": "MET",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "METOCHI",
+      "code": "GRMTX",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MILOS",
+      "code": "MLO",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MITILINI (LESBOS)",
+      "code": "LES",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MYKONOS",
+      "code": "JMK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "MYRTIES (KALYMNOY)",
+      "code": "MKL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "NAXOS",
+      "code": "JNX",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "NEAPOLIS",
+      "code": "NEA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "NISYROS",
+      "code": "NIS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "NYDRI (LEFKADA)",
+      "code": "NID",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "OINOUSSES",
+      "code": "INO",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "OTHONOI",
+      "code": "OTH",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PANORMITIS",
+      "code": "PAN",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PAROS",
+      "code": "PAS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PATMOS",
+      "code": "PMS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PATRA",
+      "code": "GRA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PAXI",
+      "code": "PAX",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PESSADA (KEFALONIA)",
+      "code": "PSK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PETRA, LESBOS",
+      "code": "PET",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PIRAEUS",
+      "code": "PIR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PLATANIA",
+      "code": "GRPIA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "POLLONIA",
+      "code": "GRPOL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "POROS",
+      "code": "POR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "POROS (KEFALONIA)",
+      "code": "PKE",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PORTO HELI",
+      "code": "PHE",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "POUNTA (PAROS)",
+      "code": "GRPOU",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PSARA",
+      "code": "PHA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PSERIMOS",
+      "code": "PSE",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "PYTHAGORIO",
+      "code": "PYT",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "RAFINA",
+      "code": "RAF",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "RETHIMNO",
+      "code": "RNO",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "RODOS",
+      "code": "RHO",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SAMI",
+      "code": "SMI",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SAMOTHRAKI",
+      "code": "SAM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SCHINOUSSA",
+      "code": "SXI",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SERIFOS",
+      "code": "SER",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SFAKIA",
+      "code": "CSF",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SIFNOS",
+      "code": "SIF",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SIGRI",
+      "code": "SIG",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SIKINOS",
+      "code": "SIK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SITIA",
+      "code": "JSH",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SKALA KAMIROU(RHO)",
+      "code": "SKR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SKIATHOS",
+      "code": "JSI",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SKOPELOS",
+      "code": "SKO",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SKOPELOS (AGNONTAS)",
+      "code": "ANS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SKYROS",
+      "code": "SKU",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SOUVALA",
+      "code": "SVA",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SPETSES",
+      "code": "SPE",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SYMI",
+      "code": "SYM",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "SYROS",
+      "code": "JSY",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "THESSALONIKI",
+      "code": "SKG",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "THIMAINA (FOURNOI)",
+      "code": "THY",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "THIRA (SANTORINI)",
+      "code": "JTR",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "THIRASIA",
+      "code": "TRS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "TILOS",
+      "code": "THL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "TINOS",
+      "code": "TIN",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "TRIKERI",
+      "code": "GRTRK",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "TRYPITI",
+      "code": "GRTRY",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "VASSILIKI (LEFKADA)",
+      "code": "VAS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "VATHI (SAMOS)",
+      "code": "BTH",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "VOLISSOS",
+      "code": "VLS",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "VOLOS",
+      "code": "VOL",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    },
+    {
+      "name": "ZAKYNTHOS",
+      "code": "ZTH",
+      "country": "Greece",
+      "lat": null,
+      "lon": null
+    }
+  ]
+}

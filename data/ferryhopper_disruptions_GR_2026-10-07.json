@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-07",
+  "country": "GR",
+  "retrieved_at": "2026-10-07T04:48:38Z",
+  "data": {
+    "disruptions": [
+      {
+        "type": "Trip Cancellation",
+        "title": "AEGEAN FLYING DOLPHINS - Trip cancellations for ferry XIX",
+        "content": "<p>From <strong>1 October 2026 to 19 October 2026</strong>, the following trips operated by Aegean Flying Dolphins on ferry XIX have been <strong>cancelled</strong>:</p><ul><li><p>08:50 trip</p></li><li><p>09:50 trip</p></li><li><p>19:00 trip</p></li><li><p>20:00 trip</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      }
+    ]
+  }
+}

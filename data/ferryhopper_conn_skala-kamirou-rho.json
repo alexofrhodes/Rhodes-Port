@@ -1,0 +1,25 @@
+{
+  "origin": "SKALA KAMIROU(RHO)",
+  "destinations": [
+    {
+      "name": "PIRAEUS",
+      "code": "PIR",
+      "country": "Greece"
+    },
+    {
+      "name": "AEGINA",
+      "code": "AEG",
+      "country": "Greece"
+    },
+    {
+      "name": "METHANA",
+      "code": "MET",
+      "country": "Greece"
+    },
+    {
+      "name": "POROS",
+      "code": "POR",
+      "country": "Greece"
+    }
+  ]
+}

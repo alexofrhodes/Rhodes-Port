@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Rhodes Port & Air">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#146377"/>
+      <stop offset="100%" stop-color="#0a3d4a"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="url(#g)"/>
+  <path d="M20 78c18-6 36-6 54 0 12 4 24 4 36 0" fill="none" stroke="#e8f4f2" stroke-width="6" stroke-linecap="round"/>
+  <path d="M34 70l28-22 10 8 22-18" fill="none" stroke="#d9c4a1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="94" cy="34" r="8" fill="#e8f4f2"/>
+</svg>

@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-13",
+  "country": "GR",
+  "retrieved_at": "2026-10-13T04:40:37Z",
+  "data": {
+    "disruptions": [
+      {
+        "type": "Time change",
+        "title": "SEAJETS - Trip schedule modifications for ferry EUROCHAMPION JET 2",
+        "content": "<p>From <strong>10 October</strong> to <strong>18 October</strong>, the following SEAJETS trips operated by ferry EUROCHAMPION JET 2 will depart at new times:</p><ul><li><p>Departure from Naxos at 15:35 - departure from Mykonos at 16:25 - departure from Syros at 17:05 - arrival in Piraeus at 19:15.</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TIME_MODIFICATION",
+        "updatedAt": "2026-10-08T15:02:41+00:00"
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "SEAJETS - Trip cancellations for ferry AQUA BLUE due to adverse weather",
+        "content": "<p><strong>From 12 October to 15 October</strong>, the scheduled trips operated by Seajets with ferry AQUA BLUE have been cancelled due to expected adverse weather conditions.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "AEGEAN FLYING DOLPHINS - Trip cancellations for ferry XIX",
+        "content": "<p>From <strong>1 October 2026 to 19 October 2026</strong>, the following trips operated by Aegean Flying Dolphins on ferry XIX have been <strong>cancelled</strong>:</p><ul><li><p>08:50 trip</p></li><li><p>09:50 trip</p></li><li><p>19:00 trip</p></li><li><p>20:00 trip</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "SEAJETS - Trip cancellations and suspensions for ferry SUPERRUNNER JET",
+        "content": "<p>SEAJETS has cancelled or suspended the following SUPERRUNNER JET trips from <strong>12 October to 28 October</strong>:</p><ul><li><p>Paros - Rafina: cancelled.</p></li><li><p>Rafina - Paros - Naxos: suspended.</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      }
+    ]
+  }
+}

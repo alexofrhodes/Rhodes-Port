@@ -1,0 +1,90 @@
+{
+  "origin": "AG. EFSTRATIOS",
+  "destinations": [
+    {
+      "name": "PIRAEUS",
+      "code": "PIR",
+      "country": "Greece"
+    },
+    {
+      "name": "AG. KIRIKOS",
+      "code": "AGK",
+      "country": "Greece"
+    },
+    {
+      "name": "ALEX/POLI",
+      "code": "AXL",
+      "country": "Greece"
+    },
+    {
+      "name": "CHIOS",
+      "code": "CHI",
+      "country": "Greece"
+    },
+    {
+      "name": "EVDILOS",
+      "code": "EYD",
+      "country": "Greece"
+    },
+    {
+      "name": "FOURNI",
+      "code": "FOU",
+      "country": "Greece"
+    },
+    {
+      "name": "IKARIA",
+      "code": "IKA",
+      "country": "Greece"
+    },
+    {
+      "name": "KARLOVASSI",
+      "code": "KAR",
+      "country": "Greece"
+    },
+    {
+      "name": "KAVALA",
+      "code": "KAV",
+      "country": "Greece"
+    },
+    {
+      "name": "LAVRIO",
+      "code": "LAV",
+      "country": "Greece"
+    },
+    {
+      "name": "LIMNOS",
+      "code": "LMN",
+      "country": "Greece"
+    },
+    {
+      "name": "MESTA (CHIOS)",
+      "code": "MHI",
+      "country": "Greece"
+    },
+    {
+      "name": "MITILINI (LESBOS)",
+      "code": "LES",
+      "country": "Greece"
+    },
+    {
+      "name": "MYKONOS",
+      "code": "JMK",
+      "country": "Greece"
+    },
+    {
+      "name": "SAMOTHRAKI",
+      "code": "SAM",
+      "country": "Greece"
+    },
+    {
+      "name": "SYROS",
+      "code": "JSY",
+      "country": "Greece"
+    },
+    {
+      "name": "VATHI (SAMOS)",
+      "code": "BTH",
+      "country": "Greece"
+    }
+  ]
+}

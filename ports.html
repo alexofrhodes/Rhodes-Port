@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a3d4a" />
+    <title>Ports &amp; vessels — Rhodes Port Tracker</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/ferries.css" />
+    <link rel="stylesheet" href="./css/ports.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  </head>
+  <body class="fh-page">
+    <div class="atmosphere" aria-hidden="true"></div>
+    <div class="app-shell">
+      <nav class="app-nav no-print" aria-label="Tools">
+        <a href="/ferries.html">Ferries</a>
+        <a href="/ports.html" aria-current="page">Ports</a>
+        <a href="/?live=1">Live</a>
+        <button type="button" id="about-btn" class="nav-about" title="About / my info" aria-label="My info">?</button>
+      </nav>
+      <div class="app-stage ports-stage">
+        <header class="top fh-top">
+          <div class="brand-block">
+            <h1>Ports &amp; vessels</h1>
+            <p class="index-count" id="ports-status">Loading…</p>
+          </div>
+          <div class="controls fh-controls">
+            <label
+              >Hub
+              <input type="text" id="ports-hub" value="Rhodes" list="ports-hubs" />
+            </label>
+            <datalist id="ports-hubs"></datalist>
+            <button type="button" id="ports-reload" class="ghost">Reload</button>
+          </div>
+        </header>
+        <p class="ports-note muted">
+          Leave-from hub (RODOS / Kamiros) comes from the ferry cache automatically. Rhodes pier
+          (Akandia / Kolona / Tourist / Mandraki / Kamiros) is not in Ferryhopper — seeded from
+          operator notes. Change Facility to override; choose <strong>Auto (seed)</strong> or
+          <strong>Reset</strong> to restore the original seed.
+        </p>
+        <div class="ports-layout">
+          <div id="ports-map" class="ports-map" role="img" aria-label="Rhodes port facilities map"></div>
+          <div class="ports-table-wrap panel">
+            <table class="ports-table" id="ports-table">
+              <thead>
+                <tr>
+                  <th>Vessel</th>
+                  <th>Operator</th>
+                  <th>Leave hub</th>
+                  <th>Facility</th>
+                  <th>Destinations</th>
+                  <th>Legs</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script type="module" src="./js/ports.js"></script>
+  </body>
+</html>

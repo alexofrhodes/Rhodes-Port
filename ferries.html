@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a3d4a" />
+    <title>Ferryhopper planner — Rhodes Port Tracker</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/ferries.css" />
+  </head>
+  <body class="fh-page fh-sidebar-left">
+    <div class="atmosphere" aria-hidden="true"></div>
+    <div class="app-shell">
+    <nav class="app-nav no-print" aria-label="Tools">
+      <a href="/ferries.html" aria-current="page">Ferries</a>
+      <a href="/ports.html">Ports</a>
+      <a href="/?live=1">Live</a>
+      <button type="button" id="about-btn" class="nav-about" title="My info" aria-label="My info">?</button>
+    </nav>
+    <div class="app-stage">
+    <header class="top fh-top">
+      <div class="brand-block">
+        <h1>Ferryhopper planner</h1>
+        <p class="index-count" id="index-count"></p>
+      </div>
+      <div class="controls fh-controls">
+        <button type="button" id="fh-filters-toggle" class="ghost fh-mobile-only" aria-expanded="false">Filters</button>
+        <div class="fh-ctrl-row fh-ctrl-range" role="group" aria-label="When">
+          <span class="fh-ctrl-tag">When</span>
+          <div class="fh-dates">
+            <label>From <input type="date" id="fh-date" /></label>
+            <label class="fh-range-label">to <input type="date" id="fh-date-end" title="Optional end (week/month)" /></label>
+            <button type="button" id="fh-date-end-x" class="q-clear always" aria-label="Clear end date">×</button>
+          </div>
+          <div class="seg" role="group" aria-label="View">
+            <button type="button" class="seg-btn active" data-view="day">Day</button>
+            <button type="button" class="seg-btn" data-view="agenda">Agenda</button>
+            <button type="button" class="seg-btn" data-view="week">Week</button>
+            <button type="button" class="seg-btn" data-view="month">Month</button>
+            <button type="button" class="seg-btn" data-view="vessels">Vessels</button>
+          </div>
+          <div class="fh-nav" role="group" aria-label="Date navigation">
+            <button type="button" id="fh-prev" class="ghost" title="Previous">‹</button>
+            <button type="button" id="fh-next" class="ghost" title="Next">›</button>
+          </div>
+          <details class="fh-menu" id="fh-jump">
+            <summary class="ghost">Jump</summary>
+            <div class="fh-menu-panel" role="menu">
+              <button type="button" data-jump="today">Today</button>
+              <button type="button" data-jump="this_week">This week</button>
+              <button type="button" data-jump="next_week">Next week</button>
+              <button type="button" data-jump="next_2_weeks">Next 2 weeks</button>
+              <button type="button" data-jump="this_month">This month</button>
+              <button type="button" data-jump="this_next_month">This and next month</button>
+            </div>
+          </details>
+        </div>
+        <div class="fh-ctrl-row fh-ctrl-actions" role="group" aria-label="Data">
+          <span class="fh-ctrl-tag">Data</span>
+          <button type="button" id="fh-fetch" class="ghost">Fetch</button>
+          <label class="fh-check" title="Fetch only missing days; uncheck to overwrite From→to"><input type="checkbox" id="fh-skip" checked /> Skip cached</label>
+          <details class="fh-menu" id="fh-cache-menu">
+            <summary class="ghost">Cache</summary>
+            <div class="fh-menu-panel" role="menu">
+              <button type="button" id="fh-load">Load cache</button>
+              <button type="button" id="fh-clear-cache">Clear range…</button>
+              <button type="button" id="fh-clear-all-cache">Clear all…</button>
+            </div>
+          </details>
+          <button type="button" id="fh-export" class="ghost">Export…</button>
+          <button type="button" id="fh-local-open" class="ghost">Add local…</button>
+          <button type="button" id="fh-disrupt-btn" class="ghost fh-disrupt-btn" aria-haspopup="dialog">
+            Disruptions <span id="fh-disrupt-count" class="fh-disrupt-count">0</span>
+          </button>
+          <progress id="fh-progress" class="fh-progress" max="1" value="0" hidden></progress>
+          <p id="fh-status" class="status" aria-live="polite">Ready</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="fh-layout">
+      <aside class="panel fh-filters no-print" id="fh-filters">
+        <details class="fh-trip-fold" open id="fh-trip-side" aria-label="Trip picker">
+          <summary class="fh-filters-title">Trip picker</summary>
+          <p class="muted fh-trip-hint">Double-click a → leaving or ← return row. Book opens the day list — pick the matching vessel/time on Ferryhopper (their URL cannot pre-select a sailing).</p>
+          <section class="fh-trip-card" id="fh-pick-out" data-slot="out">
+            <h3>Outbound</h3>
+            <p class="muted fh-pick-empty">— select from table —</p>
+          </section>
+          <section class="fh-trip-card" id="fh-pick-in" data-slot="in">
+            <h3>Return</h3>
+            <p class="muted fh-pick-empty">— select from table —</p>
+          </section>
+        </details>
+        <details class="fh-filters-fold" open>
+          <summary class="fh-filters-title">Display &amp; filters</summary>
+
+          <section class="fh-filter-sec fh-filter-display">
+            <h3 class="fh-filters-sub">Display</h3>
+            <label class="fh-check fh-check-dark" data-display="smart" title="When on, Display shows only controls that apply to the current view.">
+              <input type="checkbox" id="fh-smart-display" checked /> Only options for this view
+            </label>
+            <label class="fh-check fh-check-dark" data-display="group" title="Group multi-leg voyages (day, agenda, week, month).">
+              <input type="checkbox" id="fh-group" checked /> Group voyages
+            </label>
+            <label class="fh-filter-field" data-display="vessels" title="Stack = same-day cards in a row; week = Mon–Sun grid.">Vessels layout
+              <select id="fh-vessels-layout">
+                <option value="stack" selected>Stack by day</option>
+                <option value="week">Week (Mon–Sun)</option>
+              </select>
+            </label>
+            <label class="fh-check fh-check-dark" data-display="vessels" title="Tables size to content instead of full column width.">
+              <input type="checkbox" id="fh-vessels-autofit" checked /> Autofit vessel tables
+            </label>
+            <label class="fh-filter-field" data-display="vessels" title="Gap between vessel cards.">Space
+              <select id="fh-vessels-density">
+                <option value="roomy">Roomy</option>
+                <option value="normal" selected>Normal</option>
+                <option value="tight">Tight</option>
+              </select>
+            </label>
+            <label class="fh-filter-field" data-display="agenda" title="Agenda nesting: by day (out then return) or by direction then days.">Agenda group
+              <select id="fh-agenda-group">
+                <option value="day" selected>By day → out / return</option>
+                <option value="direction">By direction → days</option>
+              </select>
+            </label>
+            <label class="fh-filter-field" data-display="week" title="Out then return: all leaving first, then returns. By time: one timeline.">Week order
+              <select id="fh-week-leg-order">
+                <option value="out_in" selected>Out then return</option>
+                <option value="by_time">By departure time</option>
+              </select>
+            </label>
+            <label class="fh-filter-field" data-display="week-split" title="dual = days down Out|Return; rows = Out/Return bands across Mon–Sun.">Week split
+              <select id="fh-week-split">
+                <option value="dual" selected>Days ↓ Out|Return</option>
+                <option value="rows">Out / Return bands</option>
+              </select>
+            </label>
+            <label class="fh-check fh-check-dark" data-display="trip" title="Show trip picker on Day and Agenda views">
+              <input type="checkbox" id="fh-show-trip-picker" checked /> Trip picker
+            </label>
+            <label class="fh-filter-field" data-display="font" title="Board font size.">Font size
+              <input type="range" id="fh-font" min="12" max="18" step="1" value="14" />
+            </label>
+            <div class="fh-fields" id="fh-fields" data-display="fields" aria-label="Board fields">
+              <div class="fh-fields-head">
+                <span>Field</span><span>Show</span><span>Bold</span>
+              </div>
+              <!-- filled by ferries.js -->
+            </div>
+            <div class="fh-panel-pos">
+              <span class="fh-panel-pos-label">Filter panel</span>
+              <div class="seg seg-compact" role="group" aria-label="Filter panel position">
+                <button type="button" class="seg-btn active" data-sidebar="left">Left</button>
+                <button type="button" class="seg-btn" data-sidebar="right">Right</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="fh-filter-sec">
+            <label class="fh-filter-field">Show
+              <select id="fh-direction">
+                <option value="both" selected>Leaving + returning</option>
+                <option value="out">Leaving hub (From)</option>
+                <option value="in">Returning to hub (To)</option>
+              </select>
+            </label>
+            <div class="fh-time-filters">
+              <label class="fh-filter-field">Out times
+                <span class="fh-time-pair">
+                  <input type="time" id="fh-out-from" value="00:00" />
+                  <span>–</span>
+                  <input type="time" id="fh-out-to" value="23:59" />
+                </span>
+              </label>
+              <label class="fh-filter-field">Return times
+                <span class="fh-time-pair">
+                  <input type="time" id="fh-in-from" value="00:00" />
+                  <span>–</span>
+                  <input type="time" id="fh-in-to" value="23:59" />
+                </span>
+              </label>
+              <label class="fh-check fh-check-dark fh-desktop-only" title="Keep week day columns scrolled together">
+                <input type="checkbox" id="fh-sync-week-scroll" checked /> Sync week scroll
+              </label>
+            </div>
+          </section>
+
+          <section class="fh-filter-sec">
+            <label class="fh-filter-field">Hub
+              <span class="search-wrap fh-list-q">
+                <input type="search" id="fh-origins-q" placeholder="Filter hub…" autocomplete="off" />
+                <button type="button" id="fh-origins-x" class="q-clear always" aria-label="Clear hub">×</button>
+              </span>
+              <select id="fh-origins" multiple size="5"></select>
+            </label>
+            <label class="fh-filter-field">Other ports
+              <span class="search-wrap fh-list-q">
+                <input type="search" id="fh-dests-q" placeholder="Filter ports…" autocomplete="off" />
+                <button type="button" id="fh-dests-x" class="q-clear always" aria-label="Clear ports">×</button>
+              </span>
+              <select id="fh-dests" multiple size="5"></select>
+            </label>
+            <label class="fh-filter-field">Vessels
+              <span class="search-wrap fh-list-q">
+                <input type="search" id="fh-vessels-q" placeholder="Filter vessels…" autocomplete="off" />
+                <button type="button" id="fh-vessels-x" class="q-clear always" aria-label="Clear vessels">×</button>
+              </span>
+              <select id="fh-vessels" multiple size="5"></select>
+            </label>
+            <label class="fh-filter-field">Company
+              <span class="search-wrap fh-list-q">
+                <input type="search" id="fh-companies-q" placeholder="Filter companies…" autocomplete="off" />
+                <button type="button" id="fh-companies-x" class="q-clear always" aria-label="Clear companies">×</button>
+              </span>
+              <select id="fh-companies" multiple size="5"></select>
+            </label>
+          </section>
+
+          <p class="muted fh-hint">
+            Rhodes hub includes Kamiros Skala. Leaving = From hub · Returning = To hub.
+          </p>
+          <ul id="loc-list" class="fh-local-list muted"></ul>
+        </details>
+      </aside>
+
+      <div class="fh-board">
+      <div class="fh-table-search no-print">
+        <span class="search-wrap">
+          <input type="search" id="fh-q" placeholder="Search… (space = multi)" title="Space-separated partials; all must match" autocomplete="off" />
+          <button type="button" id="fh-q-x" class="q-clear always" aria-label="Clear table search">×</button>
+        </span>
+      </div>
+      <main id="fh-main" class="panel fh-main"></main>
+      </div>
+    </div>
+    </div>
+    </div>
+
+    <dialog id="fh-local-dlg" class="fh-detail-dlg">
+      <form method="dialog" class="schedule-head">
+        <h2>Local / tour sailing</h2>
+        <button type="submit" class="ghost-dark" value="cancel">Close</button>
+      </form>
+      <div class="fh-local-form">
+        <input type="hidden" id="loc-id" value="" />
+        <label>Vessel <input id="loc-vessel" list="loc-vessel-list" /></label>
+        <datalist id="loc-vessel-list"></datalist>
+        <label>Operator <input id="loc-operator" /></label>
+        <label>From <input id="loc-origin" list="loc-port-list" value="Rhodes" /></label>
+        <label>To <input id="loc-dest" list="loc-port-list" /></label>
+        <datalist id="loc-port-list"></datalist>
+        <label>Via (optional) <input id="loc-via" placeholder="stop1, stop2" /></label>
+        <label>Price <input id="loc-price" placeholder="€…" /></label>
+        <label>Date (one-off) <input type="date" id="loc-date" /></label>
+        <label>Depart <input id="loc-depart" placeholder="HH:MM" /></label>
+        <label>Arrive <input id="loc-arrive" placeholder="HH:MM" /></label>
+        <label>Travel min <input id="loc-duration" type="number" min="0" step="5" placeholder="auto from times" /></label>
+        <label>Contact <input id="loc-contact" placeholder="phone / email" /></label>
+        <label>Book URL <input id="loc-book" placeholder="https://…" /></label>
+        <label>Notes <input id="loc-notes" /></label>
+        <label>Direction
+          <select id="loc-direction">
+            <option value="out">Leaving hub</option>
+            <option value="in">Returning</option>
+          </select>
+        </label>
+        <label class="fh-check"><input type="checkbox" id="loc-active" checked /> Active</label>
+        <fieldset class="fh-wd">
+          <legend>Repeat weekdays (if no date)</legend>
+          <label><input type="checkbox" name="loc-wd" value="Mon" /> Mon</label>
+          <label><input type="checkbox" name="loc-wd" value="Tue" /> Tue</label>
+          <label><input type="checkbox" name="loc-wd" value="Wed" /> Wed</label>
+          <label><input type="checkbox" name="loc-wd" value="Thu" /> Thu</label>
+          <label><input type="checkbox" name="loc-wd" value="Fri" /> Fri</label>
+          <label><input type="checkbox" name="loc-wd" value="Sat" /> Sat</label>
+          <label><input type="checkbox" name="loc-wd" value="Sun" /> Sun</label>
+        </fieldset>
+        <div class="fh-local-actions">
+          <button type="button" id="loc-new" class="ghost-dark">New</button>
+          <button type="button" id="loc-add" class="ghost-dark">Save</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="fh-detail" class="fh-detail-dlg">
+      <form method="dialog" class="schedule-head">
+        <h2>Trip details</h2>
+        <button type="submit" class="ghost-dark" value="cancel">Close</button>
+      </form>
+      <pre id="fh-detail-body" class="fh-detail-body"></pre>
+    </dialog>
+
+    <dialog id="fh-disrupt-dlg" class="fh-detail-dlg fh-disrupt-dlg">
+      <form method="dialog" class="schedule-head">
+        <h2 id="fh-disrupt-dlg-title">Disruptions</h2>
+        <div class="fh-disrupt-dlg-actions">
+          <button type="button" id="fh-disrupt-refresh" class="ghost-dark">Refresh</button>
+          <button type="submit" class="ghost-dark" value="cancel">Close</button>
+        </div>
+      </form>
+      <p id="fh-disrupt-dlg-meta" class="muted fh-disrupt-dlg-meta"></p>
+      <div id="fh-disrupt-dlg-body" class="fh-disrupt-dlg-body"></div>
+    </dialog>
+
+    <script type="module" src="./js/ferries.js"></script>
+  </body>
+</html>

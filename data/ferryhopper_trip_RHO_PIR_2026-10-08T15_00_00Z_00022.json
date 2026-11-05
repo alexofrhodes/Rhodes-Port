@@ -1,0 +1,114 @@
+{
+  "trip_id": "RHO/PIR/2026-10-08T15:00:00Z/00022",
+  "retrieved_at": "2026-10-06T10:20:35Z",
+  "details": {
+    "trip": {
+      "origin": "RHO",
+      "destination": "PIR",
+      "departure": "2026-10-08T15:00:00Z",
+      "arrival": "2026-10-09T13:30:00Z",
+      "company": "BLUE STAR FERRIES"
+    },
+    "vessel": {
+      "vesselCode": "00022",
+      "vesselName": "BLUE STAR CHIOS",
+      "hasDetails": true,
+      "vesselLength": 141,
+      "passengerCapacity": 1782,
+      "vehicleCapacity": 418,
+      "vesselIMO": 9215555,
+      "vesselMMSI": "240672000",
+      "hasCabins": false,
+      "hasGarage": true,
+      "hasPets": true,
+      "hasWifi": true,
+      "hasLift": true,
+      "hasSmoking": true,
+      "hasRestaurant": true,
+      "hasSnackBar": true,
+      "hasOpenDeck": true,
+      "hasDisabledAccess": true
+    },
+    "vesselImages": [
+      {
+        "url": "https://images.ferryhopper.com/vessel/blue-star-ferries/blue-star-chios-ferry.jpeg",
+        "caption": "Top view of the ferry",
+        "order": 1
+      },
+      {
+        "url": "https://images.ferryhopper.com/vessel/blue-star-ferries/blue-star-chios-reception.jpeg",
+        "caption": "images.vessels.spaces.reception.caption",
+        "order": 2
+      },
+      {
+        "url": "https://images.ferryhopper.com/vessel/blue-star-ferries/blue-star-chios-bar.jpeg",
+        "caption": "images.vessels.spaces.bar.caption",
+        "order": 3
+      },
+      {
+        "url": "https://images.ferryhopper.com/vessel/blue-star-ferries/blue-star-chios-restaurant.jpeg",
+        "caption": "images.vessels.spaces.restaurant.caption",
+        "order": 4
+      },
+      {
+        "url": "https://images.ferryhopper.com/vessel/blue-star-ferries/blue-star-chios-lounge.jpeg",
+        "caption": "images.vessels.class.lounge.caption",
+        "order": 5
+      },
+      {
+        "url": "https://images.ferryhopper.com/vessel/blue-star-ferries/blue-star-chios-seats.jpeg",
+        "caption": "images.vessels.class.standardSeats.caption",
+        "order": 6
+      },
+      {
+        "url": "https://images.ferryhopper.com/vessel/blue-star-ferries/blue-star-chios-vip.jpeg",
+        "caption": "images.vessels.class.vip.caption",
+        "order": 7
+      }
+    ],
+    "accommodations": [
+      {
+        "type": "LOUNGE_DECK",
+        "expectedPrice": {
+          "totalPriceInCents": 5900
+        },
+        "imageUrl": null
+      },
+      {
+        "type": "SEAT_NUMBERED_STANDARD",
+        "expectedPrice": {
+          "totalPriceInCents": 6400
+        },
+        "imageUrl": "https://images.ferryhopper.com/vessel/blue-star-ferries/blue-star-chios-seats.jpeg"
+      },
+      {
+        "type": "CABIN_SHARED_MALE_SINGLEBED_WINDOW",
+        "expectedPrice": {
+          "totalPriceInCents": 9400
+        },
+        "imageUrl": null
+      },
+      {
+        "type": "CABIN_FULL_WINDOW",
+        "expectedPrice": {
+          "totalPriceInCents": 10700
+        },
+        "imageUrl": null
+      },
+      {
+        "type": "CABIN_FULL_WINDOW",
+        "expectedPrice": {
+          "totalPriceInCents": 9400
+        },
+        "imageUrl": null
+      },
+      {
+        "type": "CABIN_FULL_WINDOW",
+        "expectedPrice": {
+          "totalPriceInCents": 9400
+        },
+        "imageUrl": null
+      }
+    ]
+  }
+}

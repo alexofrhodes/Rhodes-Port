@@ -1,0 +1,10 @@
+{
+  "origin": "AEDIPSOS",
+  "destinations": [
+    {
+      "name": "ARKITSA",
+      "code": "AKR",
+      "country": "Greece"
+    }
+  ]
+}

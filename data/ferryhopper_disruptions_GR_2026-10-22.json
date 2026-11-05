@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-22",
+  "country": "GR",
+  "retrieved_at": "2026-10-22T07:24:12Z",
+  "data": {
+    "disruptions": [
+      {
+        "type": "Time change",
+        "title": "SEAJETS - Trip schedule modification for Milos - Sifnos",
+        "content": "<p><strong>22 October 2026</strong>: Seajets' Milos - Sifnos trip will depart at <strong>15:15</strong> instead of 12:45 and arrive at <strong>15:55</strong> instead of 13:25.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TIME_MODIFICATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "SEAJETS - Trip cancellations for ferry SPORADES STAR",
+        "content": "<p>On <strong>22 October</strong>, the following trips operated by Seajets with ferry SPORADES STAR have been cancelled:</p><ul><li><p>Mantoudi - Skiathos - Skopelos</p></li><li><p>Skopelos - Alonissos to Mantoudi</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "SEAJETS - Trip cancellations and suspensions for ferry SUPERRUNNER JET",
+        "content": "<p>SEAJETS has cancelled or suspended the following SUPERRUNNER JET trips from <strong>12 October to 28 October</strong>:</p><ul><li><p>Paros - Rafina: cancelled.</p></li><li><p>Rafina - Paros - Naxos: suspended.</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      }
+    ]
+  }
+}

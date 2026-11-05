@@ -1,0 +1,219 @@
+{
+  "date": "2026-10-30",
+  "country": "GR",
+  "retrieved_at": "2026-10-30T06:11:01Z",
+  "data": {
+    "disruptions": [
+      {
+        "type": "Trip Cancellation",
+        "title": "SEAJETS - Trip suspension for ferry EUROCHAMPION JET",
+        "content": "<p>Ferry EUROCHAMPION JET and CHAMPION JET 2: the Seajets trip on the Piraeus - Mykonos - Paros - Naxos - Santorini (Thira) - Heraklion and Piraeus  Serifos  Sifnos route are  suspended and will not operate.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": "2026-10-26T14:00:23+00:00"
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "MAGIC SEA FERRIES - Trip cancellations for ferry MAGIC 5",
+        "content": "<p><strong>From 29 October 2026 to 31 October 2026</strong>: MAGIC 5 trips from Piraeus to Aegina - Agistri and return have been cancelled.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "BLUE STAR FERRIES - Trip suspensions for ferries BLUE STAR 1 and BLUE STAR PAROS",
+        "content": "<p>Trips operated by Blue Star Ferries on <strong>30 October</strong> with the following ferries have been suspended:</p><ul><li><p>BLUE STAR 1</p></li><li><p>BLUE STAR PAROS</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "MAGIC SEA FERRIES - Trip suspensions due to strike",
+        "content": "<p>Due to a 24-hour strike, all trips operated by Magic Sea Ferries on <strong>Friday, 30 October 2026</strong> will be suspended.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "TRITON FERRIES - Trip cancellations for Lavrio - Kea",
+        "content": "<p>The following trips operated by Triton Ferries on <strong>Friday, 30 October 2026</strong> have been cancelled:</p><ul><li><p>Lavrio - Kea at 09:00</p></li><li><p>Kea - Lavrio at 15:00</p></li><li><p>Lavrio - Kea at 17:15</p></li><li><p>Kea - Lavrio at 19:00</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "ALPHA LINES - Trip suspensions due to strike",
+        "content": "<p>Due to a seamen's strike, all trips operated by Alpha Lines on <strong>Friday, 30 October</strong> will be suspended.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "GOLDEN STAR FERRIES - Trip suspension for ferry ANDROS QUEEN due to strike",
+        "content": "<p><strong>30 October</strong>: the Andros Queen trip operated by Golden Star Ferries will be suspended due to a 24-hour seafarers' strike.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "BLUE STAR FERRIES - Trip suspension for ferry BLUE STAR 1 due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: due to a strike, the BLUE STAR 1 trip operated by Blue Star Ferries from Piraeus at 07:25 via Paros - Naxos - Thira - Ios - Naxos - Paros and back to Piraeus will not operate.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "BLUE STAR FERRIES - Trip modification for ferry SUPERFAST XI due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: due to a 24-hour strike, the BLUE STAR FERRIES trip operated by SUPERFAST XI will depart from Piraeus at 23:45, calling at Syros from 03:30 to 04:00, Patmos from 07:55 to 08:15, Leros from 09:20 to 09:50, Kalymnos from 10:50 to 11:10, Kos from 11:55 to 12:25, and arriving in Rhodes at 15:25.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "BLUE STAR FERRIES - Trip modification for ferry BLUE STAR NAXOS due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: due to the 24-hour strike, BLUE STAR FERRIES has modified the BLUE STAR NAXOS trip. The ferry will depart from Piraeus at 23:30 for Paros (04:00-04:30), Naxos (05:20-05:50), Iraklia (06:50-07:00), Schinoussa (07:10-07:20), Koufonissi (07:50-08:00) and Katapola (08:40).</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "BLUE STAR FERRIES - Trip suspension for ferry BLUE STAR PAROS due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: due to a 24-hour strike, the BLUE STAR PAROS trip operated by Blue Star Ferries from Piraeus at 07:30 to Syros - Tinos - Mykonos and return will be suspended.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "BLUE STAR FERRIES - Trip modification for ferry BLUE STAR MYCONOS due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: due to the 24-hour strike, BLUE STAR MYCONOS will depart from Piraeus at 23:00, calling at Syros from 02:35 to 02:55, Mykonos from 03:40 to 04:00, Evdilos from 06:05 to 06:35, Fourni from 07:30 to 07:40, Karlovasi from 08:30 to 09:00, Vathy from 09:40 to 10:20, Chios from 12:55 to 13:15, Mytilene from 15:30 to 16:45 and Lemnos from 20:50 to 21:15, before arriving in Thessaloniki at 02:50.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "BLUE STAR FERRIES - Trip modification for ferry ARIADNE due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: due to a 24-hour strike, Blue Star Ferries' ARIADNE will depart from Piraeus at 23:00, arriving in Serifos at 04:55 and departing at 05:10, before arriving in Heraklion at 08:50.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "BLUE STAR FERRIES - Trip modification for ferry BLUE STAR CHIOS due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: Due to a 24-hour strike, BLUE STAR FERRIES has modified the itinerary of ferry BLUE STAR CHIOS. It will depart from Piraeus at 23:00 for Thira (04:40-05:30), Anafi (06:45-07:00), Heraklion (10:00-10:45), Sitia (12:05-12:30), Kasos (14:35-14:50), Pigadia, Karpathos (16:05-17:00), Diafani, Karpathos (17:45-18:00), Chalki (19:40-19:55), and Rhodes (arrival at 21:45).</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "SARONIC FERRIES - Trip suspensions due to strike",
+        "content": "<p><strong>Friday, 30 October</strong>: all trips operated by Saronic Ferries will be suspended due to a 24-hour strike by maritime workers' unions.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "FAST FERRIES - Trip schedule modification for ferry FAST FERRIES ANDROS due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: Due to a 24-hour maritime strike, Fast Ferries has changed the departure time of FAST FERRIES ANDROS from Rafina to 23:00. The ferry will arrive at Andros at 01:00 and depart at 01:15 the next day, arrive at Tinos at 02:50 and depart at 03:05, and arrive at Mykonos at 03:40.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "FAST FERRIES - Date modification for ferry DIONYSIOS SOLOMOS due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: due to a 24-hour maritime workers' strike, the FAST FERRIES trip operated by DIONYSIOS SOLOMOS has been rescheduled to <strong>Saturday, 31 October 2026</strong>. The ferry will depart from Piraeus at 07:15 and call at Serifos (11:15-11:30), Sifnos (12:10-12:25), Kimolos (13:15-13:30), Folegandros (14:40-14:55), Sikinos (15:35-15:45) and Ios (16:15-16:30), arriving in Thira at 17:45.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Time change",
+        "title": "BLUE STAR FERRIES - Trip modification for ferry NISSOS SAMOS due to strike",
+        "content": "<p><strong>Friday, 30 October 2026</strong>: due to a 24-hour strike, the BLUE STAR FERRIES trip operated by NISSOS SAMOS will depart from Piraeus at 23:59, calling at Psara from 06:40 to 06:55, Oinousses from 08:50 to 09:05, Chios from 09:50 to 10:50, and arriving in Mytilene at 13:50.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TIME_MODIFICATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "BLUE STAR FERRIES - Trip suspensions on Saronic routes due to strike",
+        "content": "<p>Due to the 24-hour strike on Friday, 30 October 2026, the following Saronic trips operated by Blue Star Ferries will be <strong>suspended</strong>:</p><p><strong>Friday, 30 October 2026</strong></p><ul><li><p>Piraeus - Aegina at 06:30 and return</p></li><li><p>Piraeus - Aegina - Agistri at 08:30 and return</p></li><li><p>Piraeus - Poros - Hydra - Spetses at 08:00 and return</p></li><li><p>Piraeus - Poros - Hydra - Spetses at 10:00 and return</p></li><li><p>Piraeus - Aegina at 10:40 and return</p></li><li><p>Piraeus - Aegina - Agistri at 11:30 and return</p></li><li><p>Piraeus - Aegina - Agistri at 12:30 and return</p></li><li><p>Piraeus - Poros - Hydra - Spetses at 14:00 and return</p></li><li><p>Piraeus - Aegina at 14:40 and return</p></li><li><p>Piraeus - Aegina - Agistri at 16:30 and return</p></li><li><p>Piraeus - Poros - Hydra - Hermione - Spetses - Porto Heli at 18:00</p></li><li><p>Piraeus - Aegina at 18:40 and return</p></li></ul><p><strong>Saturday, 31 October 2026</strong></p><ul><li><p>Porto Heli - Spetses - Hermione - Hydra - Poros - Piraeus at 06:00</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      },
+      {
+        "type": "Trip Cancellation",
+        "title": "BLUE STAR - Trip suspensions on multiple routes",
+        "content": "<p>The following trips operated by Blue Star on <strong>30 October 2026</strong> will be suspended:</p><ul><li><p>Piraeus - Naxos at 07:25</p></li><li><p>Piraeus - Santorini (Thira) at 07:25</p></li><li><p>Piraeus - Mykonos at 07:30</p></li><li><p>Mykonos - Piraeus at 14:15</p></li><li><p>Santorini (Thira) - Naxos at 15:30</p></li><li><p>Santorini (Thira) - Piraeus at 15:30</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TRIP_CANCELLATION",
+        "updatedAt": null
+      },
+      {
+        "type": "Strike",
+        "title": "AEGINA FERRIES - Trip cancellations due to strike",
+        "content": "<p><strong>30 October 2026</strong>: all trips operated by Aegina Ferries have been cancelled due to the strike.</p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "STRIKE",
+        "updatedAt": null
+      }
+    ]
+  }
+}

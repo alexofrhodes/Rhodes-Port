@@ -1,0 +1,43 @@
+{
+  "trip_id": "RHO/CHL/2026-10-06T14:50:00Z/2",
+  "retrieved_at": "2026-10-06T10:07:19Z",
+  "details": {
+    "trip": {
+      "origin": "RHO",
+      "destination": "CHL",
+      "departure": "2026-10-06T14:50:00Z",
+      "arrival": "2026-10-06T17:20:00Z",
+      "company": "SAOS FERRIES"
+    },
+    "vessel": {
+      "vesselCode": "2",
+      "vesselName": "SAONISOS",
+      "hasDetails": true,
+      "vesselLength": 78,
+      "passengerCapacity": 350,
+      "vehicleCapacity": 45,
+      "vesselIMO": 9104627,
+      "vesselMMSI": "239775900",
+      "hasCabins": false,
+      "hasGarage": true,
+      "hasPets": true,
+      "hasWifi": false,
+      "hasLift": false,
+      "hasSmoking": true,
+      "hasRestaurant": false,
+      "hasSnackBar": true,
+      "hasOpenDeck": true,
+      "hasDisabledAccess": true
+    },
+    "vesselImages": [],
+    "accommodations": [
+      {
+        "type": "LOUNGE_DECK",
+        "expectedPrice": {
+          "totalPriceInCents": 820
+        },
+        "imageUrl": null
+      }
+    ]
+  }
+}

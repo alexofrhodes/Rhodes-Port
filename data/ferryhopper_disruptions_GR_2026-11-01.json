@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-01",
+  "country": "GR",
+  "retrieved_at": "2026-11-01T15:40:41Z",
+  "data": {
+    "disruptions": [
+      {
+        "type": "Time change",
+        "title": "DODEKANISOS SEAWAYS - Trip schedule modifications on multiple routes",
+        "content": "<p>Dodekanisos Seaways has modified the departure and arrival times for the following trips on <strong>1 November 2026</strong>:</p><ul><li><p>Kalymnos - Rhodes will depart at 14:10 instead of 14:20 and arrive at 17:10 instead of 17:20.</p></li><li><p>Kos - Rhodes will depart at 14:50 instead of 15:00 and arrive at 17:10 instead of 17:20.</p></li><li><p>Symi - Rhodes will depart at 16:20 instead of 16:30 and arrive at 17:10 instead of 17:20.</p></li></ul>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TIME_MODIFICATION",
+        "updatedAt": "2026-10-31T09:09:20+00:00"
+      },
+      {
+        "type": "Time change",
+        "title": "BLUE STAR FERRIES - Trip schedule modification for ferry NISSOS RODOS due to maintenance work",
+        "content": "<p><strong>Sunday, 1 November 2026</strong>: Due to essential maintenance work on the vehicle ramp, NISSOS RODOS will depart from Piraeus at 23:59 instead of 18:00, call at Kos from 10:00 to 10:20, and arrive in Rhodes at 13:30.  </p>",
+        "countries": [
+          "Greece"
+        ],
+        "reason": "TIME_MODIFICATION",
+        "updatedAt": null
+      }
+    ]
+  }
+}
