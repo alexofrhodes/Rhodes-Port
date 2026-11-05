@@ -22,7 +22,7 @@ const state = {
   groupVoyages: true,
   vesselsLayout: 'stack', // stack | week
   vesselsAutofit: true,
-  smartDisplay: true,
+  smartDisplay: false,
   agendaGroup: 'day', // day | direction
   weekLegOrder: 'out_in', // out_in | by_time
   weekSplit: 'dual', // dual | rows
@@ -579,12 +579,20 @@ function officeTableHtml(officeRows) {
     body = `<tr><td colspan="${OFFICE_COLS.length}">—</td></tr>`;
   } else {
     for (const r of officeRows) {
-      body += `<tr>${OFFICE_COLS.map(
+      const trAttrs = r._pickAttrs
+        ? `${r._pickAttrs} title="Double-click to pick for trip"`
+        : '';
+      body += `<tr${trAttrs ? ` ${trAttrs}` : ''}>${OFFICE_COLS.map(
         ([k]) => `<td class="${k === 'dir' ? 'dir' : ''}">${escapeHtml(String(r[k] ?? ''))}</td>`,
       ).join('')}</tr>`;
     }
   }
   return `<table class="fh-day-table"><thead><tr>${th}</tr></thead><tbody>${body}</tbody></table>`;
+}
+
+function officeRowWithPick(row, pickSource) {
+  const { attrs } = pickMeta(pickSource);
+  return { ...row, _pickAttrs: attrs };
 }
 
 function officeBucketHtml(bucketRows, { showEmpty } = {}) {
@@ -596,11 +604,15 @@ function officeBucketHtml(bucketRows, { showEmpty } = {}) {
     if (!voyages.length) {
       return showEmpty ? `<p class="muted">None in cache — Fetch if needed.</p>` : '';
     }
-    const table = officeTableHtml(voyages.map(officeRowFromVoyage));
+    const table = officeTableHtml(
+      voyages.map((v) => officeRowWithPick(officeRowFromVoyage(v), voyageAsPick(v))),
+    );
     const cards = voyages.map((v) => voyageCardHtml(v)).join('');
     return `${table}<div class="fh-day-cards">${cards}</div>`;
   }
-  const table = officeTableHtml(bucketRows.map(officeRowFromLeg));
+  const table = officeTableHtml(
+    bucketRows.map((r) => officeRowWithPick(officeRowFromLeg(r), r)),
+  );
   const cards = bucketRows
     .map((r) => {
       const { attrs } = pickMeta(r, 'fh-leg-card');
@@ -1020,7 +1032,8 @@ async function loadPorts() {
     prefs.vessels_density === 'roomy' || prefs.vessels_density === 'tight'
       ? prefs.vessels_density
       : 'normal';
-  state.smartDisplay = prefs.smart_display !== false;
+  // Default off so all Display controls stay visible; prefs can turn smart on.
+  state.smartDisplay = prefs.smart_display === true;
   state.agendaGroup = prefs.agenda_group === 'direction' ? 'direction' : 'day';
   state.weekLegOrder = prefs.week_leg_order === 'by_time' ? 'by_time' : 'out_in';
   state.weekSplit = prefs.week_split === 'rows' ? 'rows' : 'dual';
@@ -2418,7 +2431,9 @@ function renderDayGrouped(rows) {
       html += `<p class="muted">None in cache — Fetch if needed.</p>`;
       continue;
     }
-    html += officeTableHtml(voyages.map(officeRowFromVoyage));
+    html += officeTableHtml(
+      voyages.map((v) => officeRowWithPick(officeRowFromVoyage(v), voyageAsPick(v))),
+    );
     html += `<div class="fh-day-cards">${voyages.map((v) => voyageCardHtml(v)).join('')}</div>`;
   }
   return `<div class="fh-day-office">${html}</div>`;
@@ -3054,25 +3069,15 @@ directionEl.addEventListener('change', () => {
 
 const filtersEl = document.getElementById('fh-filters');
 const filtersFold = filtersEl?.querySelector('.fh-filters-fold');
-const tripFold = document.getElementById('fh-trip-side');
 
-function syncFiltersCollapsed() {
-  const filtersOpen = !filtersFold || filtersFold.open;
-  const tripOpen = !tripFold || tripFold.open;
-  // Crush sidebar only when neither trip nor filters need horizontal space.
-  document.body.classList.toggle('fh-filters-collapsed', !filtersOpen && !tripOpen);
-}
-
-filtersFold?.addEventListener('toggle', syncFiltersCollapsed);
-tripFold?.addEventListener('toggle', syncFiltersCollapsed);
-syncFiltersCollapsed();
+// Folding trip/filters must not reflow the board (no fh-filters-collapsed width crush).
+document.body.classList.remove('fh-filters-collapsed');
 
 document.getElementById('fh-filters-toggle')?.addEventListener('click', () => {
   const open = document.body.classList.toggle('fh-filters-open');
   document.getElementById('fh-filters-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
   if (open && filtersFold && !filtersFold.open) {
     filtersFold.open = true;
-    syncFiltersCollapsed();
   }
 });
 
