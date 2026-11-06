@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0a3d4a" />
     <title>Ferryhopper planner — Rhodes Port Tracker</title>
     <link rel="stylesheet" href="./css/styles.css" />
-    <link rel="stylesheet" href="./css/ferries.css?v=8" />
+    <link rel="stylesheet" href="./css/ferries.css?v=9" />
   </head>
   <body class="fh-page fh-sidebar-left">
     <div class="atmosphere" aria-hidden="true"></div>
@@ -91,24 +91,26 @@
           <strong>Filters</strong>
           <button type="button" id="fh-filters-close" class="ghost" aria-label="Close filters">Close</button>
         </div>
-        <details class="fh-trip-fold" open id="fh-trip-side" aria-label="Trip picker">
-          <summary class="fh-filters-title">Trip picker</summary>
-          <p class="muted fh-trip-hint fh-trip-hint-desktop">Double-click a → leaving or ← return row. Book opens the day list — pick the matching vessel/time on Ferryhopper (their URL cannot pre-select a sailing).</p>
-          <p class="muted fh-trip-hint fh-trip-hint-mobile">Tap a leg card to pick outbound or return. Book opens Ferryhopper’s day list — select the matching vessel/time there.</p>
-          <section class="fh-trip-card" id="fh-pick-out" data-slot="out">
-            <h3>Outbound</h3>
-            <p class="muted fh-pick-empty">— select from table —</p>
-          </section>
-          <section class="fh-trip-card" id="fh-pick-in" data-slot="in">
-            <h3>Return</h3>
-            <p class="muted fh-pick-empty">— select from table —</p>
-          </section>
-        </details>
-        <div class="fh-side-tabs" role="tablist" aria-label="Display and filters">
-          <button type="button" class="fh-side-tab" role="tab" id="fh-tab-display" data-tab="display" aria-controls="fh-panel-display" aria-selected="false">Display</button>
-          <button type="button" class="fh-side-tab active" role="tab" id="fh-tab-filters" data-tab="filters" aria-controls="fh-panel-filters" aria-selected="true">Filters</button>
+        <div class="fh-side-chrome">
+          <div class="fh-trip-fold" id="fh-trip-side" aria-label="Trip picker">
+            <p class="fh-filters-title">Trip picker</p>
+            <p class="muted fh-trip-hint fh-trip-hint-desktop">Double-click a → leaving or ← return row. Book opens the day list — pick the matching vessel/time on Ferryhopper (their URL cannot pre-select a sailing).</p>
+            <p class="muted fh-trip-hint fh-trip-hint-mobile">Tap a leg card to pick outbound or return. Book opens Ferryhopper’s day list — select the matching vessel/time there.</p>
+            <section class="fh-trip-card" id="fh-pick-out" data-slot="out">
+              <h3>Outbound</h3>
+              <p class="muted fh-pick-empty">— select from table —</p>
+            </section>
+            <section class="fh-trip-card" id="fh-pick-in" data-slot="in">
+              <h3>Return</h3>
+              <p class="muted fh-pick-empty">— select from table —</p>
+            </section>
+          </div>
+          <div class="fh-side-tabs" role="tablist" aria-label="Display and filters">
+            <button type="button" class="fh-side-tab" role="tab" id="fh-tab-display" data-tab="display" aria-controls="fh-panel-display" aria-selected="false">Display</button>
+            <button type="button" class="fh-side-tab active" role="tab" id="fh-tab-filters" data-tab="filters" aria-controls="fh-panel-filters" aria-selected="true">Filters</button>
+          </div>
         </div>
-
+        <div class="fh-side-body">
         <div class="fh-tab-panel" id="fh-panel-display" role="tabpanel" aria-labelledby="fh-tab-display" hidden>
           <section class="fh-filter-sec fh-filter-display">
             <label class="fh-check fh-check-dark" data-display="smart" title="When on, Display shows only controls that apply to the current view.">
@@ -245,6 +247,7 @@
           </p>
           <ul id="loc-list" class="fh-local-list muted"></ul>
         </div>
+        </div>
       </aside>
 
       <div class="fh-board">
@@ -327,6 +330,6 @@
     </dialog>
 
     <script type="module" src="./js/nav.js"></script>
-    <script type="module" src="./js/ferries.js?v=8"></script>
+    <script type="module" src="./js/ferries.js?v=9"></script>
   </body>
 </html>

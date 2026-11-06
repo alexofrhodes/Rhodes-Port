@@ -10,22 +10,48 @@
   overflow-y: visible;
 }
 
-.fh-page .app-shell,
+/* Ferries/Ports: nav is a slim top strip — no full-height side column. */
+.fh-page .app-shell {
+  flex-direction: column;
+  overflow: visible;
+}
+
 .fh-page .app-stage {
   overflow: visible;
 }
 
-.fh-top {
-  padding-bottom: 0.35rem;
+.fh-page .app-nav {
+  flex: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  height: auto;
+  padding: 0.3rem 0.55rem;
   position: sticky;
   top: 0;
+  z-index: 30;
+}
+
+.fh-page .app-nav a,
+.fh-page .app-nav .nav-about {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.78rem;
+  border-radius: 6px;
+}
+
+.fh-top {
+  padding: 0.35rem 0.55rem 0.25rem;
+  position: sticky;
+  top: var(--fh-nav-h, 0px);
   z-index: 20;
   background: linear-gradient(180deg, #0a3d4a 0%, rgba(10, 61, 74, 0.96) 100%);
   animation: none;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .fh-strip-a {
@@ -52,20 +78,21 @@
 }
 
 .fh-strip-a .brand-block h1 {
-  font-size: clamp(1.05rem, 2.6vw, 1.45rem);
+  font-size: clamp(0.98rem, 2.2vw, 1.25rem);
   margin: 0;
 }
 
 .fh-strip-a .index-count {
-  margin: 0.1rem 0 0;
-  font-size: 0.78rem;
+  margin: 0.05rem 0 0;
+  font-size: 0.72rem;
 }
 
 .fh-filters-btn {
   flex: 0 0 auto;
   width: auto;
   white-space: nowrap;
-  padding: 0.3rem 0.55rem;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.78rem;
 }
 
 .fh-top .controls.fh-controls {
@@ -73,15 +100,21 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  gap: 0.25rem;
+  gap: 0.15rem;
   min-width: 0;
 }
 
 .fh-ctrl-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 0.4rem;
+  gap: 0.15rem 0.3rem;
   align-items: center;
+}
+
+.fh-top .ghost,
+.fh-top .seg-btn {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.78rem;
 }
 
 .fh-ctrl-tag {
@@ -142,38 +175,52 @@ body.fh-is-dragging {
 }
 
 .fh-trip-fold {
-  margin: 0 0 0.55rem;
-  padding-bottom: 0.45rem;
-  border-bottom: 1px solid var(--line, #d5e0dd);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
 }
 
-.fh-trip-fold > summary.fh-filters-title {
-  cursor: pointer;
-  list-style: none;
+.fh-trip-fold > .fh-filters-title {
+  margin: 0 0 0.15rem;
   font-weight: 700;
 }
 
-.fh-trip-fold > summary::-webkit-details-marker {
-  display: none;
+.fh-side-chrome {
+  flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f7faf9;
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
+  border-bottom: 1px solid var(--line, #d5e0dd);
 }
 
-.fh-trip-fold > summary::before {
-  content: "▾ ";
-  opacity: 0.7;
-}
-
-.fh-trip-fold:not([open]) > summary::before {
-  content: "▸ ";
+.fh-side-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .fh-side-tabs {
   display: flex;
   gap: 0.2rem;
-  margin: 0 0 0.55rem;
+  margin: 0.45rem 0 0;
   padding: 2px;
   background: #e8f0ee;
   border-radius: 6px;
   width: 100%;
+}
+
+/* Smart display: flex labels ignore bare [hidden] without !important. */
+[data-display].fh-display-off,
+[data-display][hidden] {
+  display: none !important;
 }
 
 .fh-side-tab {
@@ -407,17 +454,6 @@ body.fh-is-dragging {
   min-height: 1.2em;
 }
 
-.fh-trip-fold {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-width: 0;
-}
-
-.fh-trip-fold[open] {
-  display: flex;
-}
-
 .fh-trip-hint {
   margin: 0 0 0.25rem;
   font-size: 0.72rem;
@@ -579,6 +615,9 @@ tr.fh-pickable:hover {
 .fh-filters {
   margin: 0;
   padding: 0.55rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .fh-main {
@@ -698,9 +737,9 @@ tr.fh-pickable:hover {
     width: 15.5rem;
     min-width: 15.5rem;
     max-width: 15.5rem;
+    height: calc(100dvh - var(--fh-sticky-top));
     max-height: calc(100dvh - var(--fh-sticky-top));
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden; /* chrome sticks; .fh-side-body scrolls */
     position: sticky;
     top: var(--fh-sticky-top);
     align-self: flex-start;
@@ -712,6 +751,14 @@ tr.fh-pickable:hover {
   .fh-board {
     min-width: 0;
     flex: 1 1 auto;
+  }
+  .fh-board .fh-main {
+    cursor: grab;
+    user-select: none;
+  }
+  body.fh-is-dragging .fh-board .fh-main,
+  body.fh-is-dragging .fh-board {
+    cursor: grabbing;
   }
 }
 
@@ -727,9 +774,13 @@ tr.fh-pickable:hover {
     display: flex;
   }
   .fh-top {
-    position: static; /* compact strips; only strip A sticks via its own sticky */
-    padding-top: 0.35rem;
-    padding-bottom: 0.25rem;
+    /* stay sticky under nav; keep strips dense */
+    padding-top: 0.3rem;
+    padding-bottom: 0.2rem;
+  }
+  .fh-filters .fh-side-chrome {
+    position: sticky;
+    top: 0;
   }
   .fh-top .controls {
     width: 100%;

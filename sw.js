@@ -1,5 +1,5 @@
 /* Service worker: shell only. Never intercept /api/ (avoids false 503 on slow AIS). */
-const CACHE = "rpa-shell-v8";
+const CACHE = "rpa-shell-v9";
 const SHELL = [
   "./",
   "./index.html",

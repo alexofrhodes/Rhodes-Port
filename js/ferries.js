@@ -925,9 +925,12 @@ function applySmartDisplay() {
     'board-fit': !smart || v === 'week' || v === 'month' || v === 'vessels',
     trip: !smart || v === 'day' || v === 'agenda',
   };
+  // Class + hidden: `.fh-check`/`.fh-filter-field { display:flex }` beats bare [hidden].
   document.querySelectorAll('[data-display]').forEach((el) => {
     const key = el.getAttribute('data-display');
-    el.hidden = !(show[key] ?? true);
+    const on = !!(show[key] ?? true);
+    el.hidden = !on;
+    el.classList.toggle('fh-display-off', !on);
   });
 }
 
@@ -3175,32 +3178,46 @@ try {
   setDrawerTab('filters');
 }
 
-function enableDragScroll(el) {
+function enableDragScroll(el, { axes = 'x' } = {}) {
   if (!el || el.dataset.dragScrollBound === '1') return;
   el.dataset.dragScrollBound = '1';
   el.classList.add('fh-drag-scroll');
+  const ax = axes === 'xy' || axes === 'both' ? 'xy' : axes === 'y' ? 'y' : 'x';
   let down = false;
   let startX = 0;
+  let startY = 0;
   let startLeft = 0;
+  let startTop = 0;
+  let startWinY = 0;
   let moved = false;
+  const canY = () => el.scrollHeight > el.clientHeight + 1;
   el.addEventListener('pointerdown', (ev) => {
     if (ev.button != null && ev.button !== 0) return;
-    if (ev.target.closest('a, button, input, select, textarea, label, summary, [data-pick], .fh-det')) return;
+    if (ev.target.closest('a, button, input, select, textarea, label, summary, [data-pick], .fh-det, .fh-links')) return;
     down = true;
     moved = false;
     startX = ev.clientX;
+    startY = ev.clientY;
     startLeft = el.scrollLeft;
+    startTop = el.scrollTop;
+    startWinY = window.scrollY;
     el.setPointerCapture?.(ev.pointerId);
   });
   el.addEventListener('pointermove', (ev) => {
     if (!down) return;
     const dx = ev.clientX - startX;
-    if (Math.abs(dx) > 3) {
+    const dy = ev.clientY - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
       moved = true;
       el.classList.add('is-dragging');
       document.body.classList.add('fh-is-dragging');
     }
-    if (moved) el.scrollLeft = startLeft - dx;
+    if (!moved) return;
+    if (ax.includes('x')) el.scrollLeft = startLeft - dx;
+    if (ax.includes('y')) {
+      if (canY()) el.scrollTop = startTop - dy;
+      else window.scrollTo(0, startWinY - dy);
+    }
   });
   const end = () => {
     if (!down) return;
@@ -3210,19 +3227,26 @@ function enableDragScroll(el) {
   };
   el.addEventListener('pointerup', end);
   el.addEventListener('pointercancel', end);
-  el.addEventListener('click', (ev) => {
-    if (moved) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      moved = false;
-    }
-  }, true);
+  el.addEventListener(
+    'click',
+    (ev) => {
+      if (moved) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        moved = false;
+      }
+    },
+    true,
+  );
 }
 
 function enableBoardDragScroll() {
-  enableDragScroll(document.querySelector('.fh-view-strip'));
+  enableDragScroll(document.querySelector('.fh-view-strip'), { axes: 'x' });
+  enableDragScroll(mainEl, { axes: 'xy' });
+  const board = document.querySelector('.fh-board');
+  if (board && board !== mainEl) enableDragScroll(board, { axes: 'xy' });
   for (const sel of ['.fh-week', '.fh-week-rows', '.fh-month', '.fh-vessel-week-grid']) {
-    mainEl.querySelectorAll(sel).forEach(enableDragScroll);
+    mainEl.querySelectorAll(sel).forEach((node) => enableDragScroll(node, { axes: 'x' }));
   }
 }
 
@@ -3240,11 +3264,15 @@ function syncLocalDatalists() {
   }
 }
 
-/** Keep filter sticky offset under the real sticky header height (wraps on narrow widths). */
+/** Keep filter sticky offset under sticky nav + header (wraps on narrow widths). */
 function syncStickyTop() {
+  const nav = document.querySelector('.fh-page .app-nav');
   const top = document.querySelector('.fh-top');
-  if (!top) return;
-  const h = Math.ceil(top.getBoundingClientRect().height);
+  const navH = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
+  document.documentElement.style.setProperty('--fh-nav-h', `${navH}px`);
+  if (top) top.style.top = `${navH}px`;
+  const topH = top ? Math.ceil(top.getBoundingClientRect().height) : 0;
+  const h = navH + topH;
   if (h > 0) document.documentElement.style.setProperty('--fh-sticky-top', `${h}px`);
 }
 
