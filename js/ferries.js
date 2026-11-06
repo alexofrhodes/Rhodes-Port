@@ -1843,6 +1843,19 @@ function pickAttr(r, extraClass = '') {
   return pickMeta(r, extraClass).attrs;
 }
 
+function updateFiltersBadge() {
+  const badge = document.getElementById('fh-filters-badge');
+  if (!badge) return;
+  const n = (state.tripPicks.out ? 1 : 0) + (state.tripPicks.in ? 1 : 0);
+  if (n) {
+    badge.hidden = false;
+    badge.textContent = String(n);
+  } else {
+    badge.hidden = true;
+    badge.textContent = '';
+  }
+}
+
 function renderTripSide() {
   const side = document.getElementById('fh-trip-side');
   // Trip pick only works from day/agenda cards — hide on week/month/vessels or when pref off.
@@ -1852,6 +1865,7 @@ function renderTripSide() {
     side.hidden = !show;
     side.classList.toggle('is-hidden', !show);
   }
+  updateFiltersBadge();
   for (const slot of ['out', 'in']) {
     const el = document.getElementById(slot === 'out' ? 'fh-pick-out' : 'fh-pick-in');
     if (!el) continue;
@@ -2133,14 +2147,29 @@ function voyageCardHtml(v) {
   </article>`;
 }
 
+function preferTapToPick() {
+  return window.matchMedia('(max-width: 899px), (pointer: coarse)').matches;
+}
+
 function bindPickClicks() {
   mainEl.querySelectorAll('[data-pick]').forEach((el) => {
+    const pick = () => {
+      const r = pickByKey.get(el.dataset.pick);
+      if (r) setTripPick(r);
+    };
     el.addEventListener('dblclick', (ev) => {
       if (ev.target.closest('a,button')) return;
       ev.preventDefault();
-      const r = pickByKey.get(el.dataset.pick);
-      if (r) setTripPick(r);
+      pick();
     });
+    // Mobile cards: single tap (desktop tables keep dblclick only).
+    if (preferTapToPick() && el.matches('article, .fh-card, .fh-leg-card')) {
+      el.addEventListener('click', (ev) => {
+        if (ev.target.closest('a,button')) return;
+        ev.preventDefault();
+        pick();
+      });
+    }
   });
 }
 
@@ -3068,15 +3097,34 @@ directionEl.addEventListener('change', () => {
 
 const filtersEl = document.getElementById('fh-filters');
 const filtersFold = filtersEl?.querySelector('.fh-filters-fold');
+const filtersScrim = document.getElementById('fh-filters-scrim');
+const filtersToggle = document.getElementById('fh-filters-toggle');
 
 // Folding trip/filters must not reflow the board (no fh-filters-collapsed width crush).
 document.body.classList.remove('fh-filters-collapsed');
 
-document.getElementById('fh-filters-toggle')?.addEventListener('click', () => {
-  const open = document.body.classList.toggle('fh-filters-open');
-  document.getElementById('fh-filters-toggle').setAttribute('aria-expanded', open ? 'true' : 'false');
-  if (open && filtersFold && !filtersFold.open) {
-    filtersFold.open = true;
+function setFiltersOpen(open) {
+  document.body.classList.toggle('fh-filters-open', !!open);
+  filtersToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (filtersScrim) filtersScrim.setAttribute('aria-hidden', open ? 'false' : 'true');
+  if (open && filtersFold && !filtersFold.open) filtersFold.open = true;
+  if (open) {
+    document.getElementById('fh-filters-close')?.focus?.();
+  }
+}
+
+function closeFiltersDrawer() {
+  setFiltersOpen(false);
+}
+
+filtersToggle?.addEventListener('click', () => {
+  setFiltersOpen(!document.body.classList.contains('fh-filters-open'));
+});
+document.getElementById('fh-filters-close')?.addEventListener('click', closeFiltersDrawer);
+filtersScrim?.addEventListener('click', closeFiltersDrawer);
+document.addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape' && document.body.classList.contains('fh-filters-open')) {
+    closeFiltersDrawer();
   }
 });
 

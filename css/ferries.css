@@ -181,6 +181,50 @@
   gap: 0.25rem;
 }
 
+.fh-filters-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  margin-left: 0.2rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: #c45c26;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.fh-filters-badge[hidden] {
+  display: none !important;
+}
+
+.fh-drawer-head {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--line, #d5e0dd);
+}
+
+.fh-drawer-head strong {
+  font-size: 0.95rem;
+  color: var(--sea-mid, #146377);
+}
+
+.fh-filters-scrim {
+  display: none; /* desktop: unused */
+}
+
+.fh-trip-hint-mobile {
+  display: none;
+}
+
 .fh-panel-pos-label {
   font-size: 0.72rem;
   font-weight: 600;
@@ -591,14 +635,56 @@ tr.fh-pickable:hover {
   .fh-mobile-only {
     display: inline-flex;
   }
+  .fh-drawer-head.fh-mobile-only {
+    display: flex;
+  }
   .fh-top .controls {
     width: 100%;
   }
-  .fh-filters {
+  .fh-panel-pos {
+    display: none !important;
+  }
+  .fh-trip-hint-desktop {
     display: none;
   }
-  body.fh-filters-open .fh-filters {
+  .fh-trip-hint-mobile {
     display: block;
+  }
+  /* Off-canvas drawer — board stays full width (no top accordion). */
+  .fh-filters-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(10, 30, 36, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  body.fh-filters-open .fh-filters-scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .fh-filters {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 45;
+    width: min(20rem, 92vw);
+    max-width: 92vw;
+    margin: 0;
+    padding: 0.75rem 0.85rem 1.25rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #f7faf9;
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.18);
+    transform: translateX(100%);
+    transition: transform 0.22s ease;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.fh-filters-open .fh-filters {
+    transform: translateX(0);
   }
   .fh-day-cards {
     display: flex;

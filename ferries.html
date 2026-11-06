@@ -24,7 +24,9 @@
         <p class="index-count" id="index-count"></p>
       </div>
       <div class="controls fh-controls">
-        <button type="button" id="fh-filters-toggle" class="ghost fh-mobile-only" aria-expanded="false">Filters</button>
+        <button type="button" id="fh-filters-toggle" class="ghost fh-mobile-only" aria-expanded="false" aria-controls="fh-filters">
+          Filters <span id="fh-filters-badge" class="fh-filters-badge" hidden></span>
+        </button>
         <div class="fh-ctrl-row fh-ctrl-range" role="group" aria-label="When">
           <span class="fh-ctrl-tag">When</span>
           <div class="fh-dates">
@@ -78,11 +80,17 @@
       </div>
     </header>
 
+    <div class="fh-filters-scrim no-print" id="fh-filters-scrim" aria-hidden="true"></div>
     <div class="fh-layout">
-      <aside class="panel fh-filters no-print" id="fh-filters">
+      <aside class="panel fh-filters no-print" id="fh-filters" aria-label="Filters and trip picker">
+        <div class="fh-drawer-head fh-mobile-only">
+          <strong>Filters</strong>
+          <button type="button" id="fh-filters-close" class="ghost" aria-label="Close filters">Close</button>
+        </div>
         <details class="fh-trip-fold" open id="fh-trip-side" aria-label="Trip picker">
           <summary class="fh-filters-title">Trip picker</summary>
-          <p class="muted fh-trip-hint">Double-click a → leaving or ← return row. Book opens the day list — pick the matching vessel/time on Ferryhopper (their URL cannot pre-select a sailing).</p>
+          <p class="muted fh-trip-hint fh-trip-hint-desktop">Double-click a → leaving or ← return row. Book opens the day list — pick the matching vessel/time on Ferryhopper (their URL cannot pre-select a sailing).</p>
+          <p class="muted fh-trip-hint fh-trip-hint-mobile">Tap a leg card to pick outbound or return. Book opens Ferryhopper’s day list — select the matching vessel/time there.</p>
           <section class="fh-trip-card" id="fh-pick-out" data-slot="out">
             <h3>Outbound</h3>
             <p class="muted fh-pick-empty">— select from table —</p>
