@@ -1,5 +1,5 @@
 /* Service worker: shell only. Never intercept /api/ (avoids false 503 on slow AIS). */
-const CACHE = "rpa-shell-v6";
+const CACHE = "rpa-shell-v7";
 const SHELL = [
   "./",
   "./index.html",
@@ -7,6 +7,8 @@ const SHELL = [
   "./ports.html",
   "./live.html",
   "./css/styles.css",
+  "./css/ferries.css",
+  "./js/ferries.js",
   "./icons/icon.svg",
   "./manifest.webmanifest",
 ];

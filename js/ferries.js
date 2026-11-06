@@ -22,7 +22,8 @@ const state = {
   groupVoyages: true,
   vesselsLayout: 'stack', // stack | week
   vesselsAutofit: true,
-  smartDisplay: false,
+  smartDisplay: true,
+  boardFit: 'scroll', // scroll | shrink
   agendaGroup: 'day', // day | direction
   weekLegOrder: 'out_in', // out_in | by_time
   weekSplit: 'dual', // dual | rows
@@ -901,6 +902,14 @@ function setView(view) {
   applySmartDisplay();
 }
 
+function applyBoardFit() {
+  const fit = state.boardFit === 'shrink' ? 'shrink' : 'scroll';
+  document.body.classList.remove('fh-board-fit-scroll', 'fh-board-fit-shrink');
+  document.body.classList.add(`fh-board-fit-${fit}`);
+  const el = document.getElementById('fh-board-fit');
+  if (el && el.value !== fit) el.value = fit;
+}
+
 function applySmartDisplay() {
   const v = state.view || 'day';
   const smart = state.smartDisplay !== false;
@@ -908,16 +917,17 @@ function applySmartDisplay() {
     smart: true,
     group: !smart || ['day', 'agenda', 'week', 'month'].includes(v),
     font: true,
-    fields: !smart || ['day', 'agenda', 'week', 'month'].includes(v),
+    fields: !smart || v === 'week' || v === 'month',
     agenda: !smart || v === 'agenda',
     week: !smart || v === 'week' || v === 'month',
     'week-split': !smart || v === 'week',
     vessels: !smart || v === 'vessels',
+    'board-fit': !smart || v === 'week' || v === 'month' || v === 'vessels',
     trip: !smart || v === 'day' || v === 'agenda',
   };
   document.querySelectorAll('[data-display]').forEach((el) => {
     const key = el.getAttribute('data-display');
-    el.hidden = !show[key];
+    el.hidden = !(show[key] ?? true);
   });
 }
 
@@ -1032,8 +1042,8 @@ async function loadPorts() {
     prefs.vessels_density === 'roomy' || prefs.vessels_density === 'tight'
       ? prefs.vessels_density
       : 'normal';
-  // Default off so all Display controls stay visible; prefs can turn smart on.
-  state.smartDisplay = prefs.smart_display === true;
+  state.smartDisplay = prefs.smart_display !== false;
+  state.boardFit = prefs.board_fit === 'shrink' ? 'shrink' : 'scroll';
   state.agendaGroup = prefs.agenda_group === 'direction' ? 'direction' : 'day';
   state.weekLegOrder = prefs.week_leg_order === 'by_time' ? 'by_time' : 'out_in';
   state.weekSplit = prefs.week_split === 'rows' ? 'rows' : 'dual';
@@ -1054,6 +1064,9 @@ async function loadPorts() {
   if (vdEl) vdEl.value = state.vesselsDensity || 'normal';
   const sdEl = document.getElementById('fh-smart-display');
   if (sdEl) sdEl.checked = state.smartDisplay;
+  const bfEl = document.getElementById('fh-board-fit');
+  if (bfEl) bfEl.value = state.boardFit;
+  applyBoardFit();
   const agEl = document.getElementById('fh-agenda-group');
   if (agEl) agEl.value = state.agendaGroup;
   const wloEl = document.getElementById('fh-week-leg-order');
@@ -1483,6 +1496,7 @@ async function savePrefs() {
         ? state.vesselsDensity
         : 'normal',
     smart_display: state.smartDisplay !== false,
+    board_fit: state.boardFit === 'shrink' ? 'shrink' : 'scroll',
     agenda_group: state.agendaGroup === 'direction' ? 'direction' : 'day',
     week_leg_order: state.weekLegOrder === 'by_time' ? 'by_time' : 'out_in',
     week_split: state.weekSplit === 'rows' ? 'rows' : 'dual',
@@ -2514,6 +2528,7 @@ function render() {
   renderTripSide();
   bindWeekScrollSync();
   bindTableTools();
+  enableBoardDragScroll();
 }
 
 function tableFromEl(table) {
@@ -2945,6 +2960,7 @@ document.getElementById('fh-group')?.addEventListener('change', (e) => {
 document.getElementById('fh-vessels-layout')?.addEventListener('change', (e) => {
   state.vesselsLayout = e.target.value === 'week' ? 'week' : 'stack';
   savePrefs();
+  applySmartDisplay();
   render();
 });
 document.getElementById('fh-vessels-autofit')?.addEventListener('change', (e) => {
@@ -2956,6 +2972,11 @@ document.getElementById('fh-smart-display')?.addEventListener('change', (e) => {
   state.smartDisplay = !!e.target.checked;
   savePrefs();
   applySmartDisplay();
+});
+document.getElementById('fh-board-fit')?.addEventListener('change', (e) => {
+  state.boardFit = e.target.value === 'shrink' ? 'shrink' : 'scroll';
+  savePrefs();
+  applyBoardFit();
 });
 document.getElementById('fh-agenda-group')?.addEventListener('change', (e) => {
   state.agendaGroup = e.target.value === 'direction' ? 'direction' : 'day';
@@ -3096,18 +3117,36 @@ directionEl.addEventListener('change', () => {
 });
 
 const filtersEl = document.getElementById('fh-filters');
-const filtersFold = filtersEl?.querySelector('.fh-filters-fold');
 const filtersScrim = document.getElementById('fh-filters-scrim');
 const filtersToggle = document.getElementById('fh-filters-toggle');
 
-// Folding trip/filters must not reflow the board (no fh-filters-collapsed width crush).
+// Tabs must not reflow the board (no fh-filters-collapsed width crush).
 document.body.classList.remove('fh-filters-collapsed');
+
+function setDrawerTab(tab) {
+  const next = tab === 'display' ? 'display' : 'filters';
+  document.querySelectorAll('.fh-side-tab').forEach((btn) => {
+    const on = btn.dataset.tab === next;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  const displayPanel = document.getElementById('fh-panel-display');
+  const filtersPanel = document.getElementById('fh-panel-filters');
+  if (displayPanel) displayPanel.hidden = next !== 'display';
+  if (filtersPanel) filtersPanel.hidden = next !== 'filters';
+  try {
+    localStorage.setItem('fh_drawer_tab', next);
+  } catch {
+    /* ignore */
+  }
+  const head = document.querySelector('.fh-drawer-head strong');
+  if (head) head.textContent = next === 'display' ? 'Display' : 'Filters';
+}
 
 function setFiltersOpen(open) {
   document.body.classList.toggle('fh-filters-open', !!open);
   filtersToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
   if (filtersScrim) filtersScrim.setAttribute('aria-hidden', open ? 'false' : 'true');
-  if (open && filtersFold && !filtersFold.open) filtersFold.open = true;
   if (open) {
     document.getElementById('fh-filters-close')?.focus?.();
   }
@@ -3127,6 +3166,65 @@ document.addEventListener('keydown', (ev) => {
     closeFiltersDrawer();
   }
 });
+document.querySelectorAll('.fh-side-tab').forEach((btn) => {
+  btn.addEventListener('click', () => setDrawerTab(btn.dataset.tab));
+});
+try {
+  setDrawerTab(localStorage.getItem('fh_drawer_tab') === 'display' ? 'display' : 'filters');
+} catch {
+  setDrawerTab('filters');
+}
+
+function enableDragScroll(el) {
+  if (!el || el.dataset.dragScrollBound === '1') return;
+  el.dataset.dragScrollBound = '1';
+  el.classList.add('fh-drag-scroll');
+  let down = false;
+  let startX = 0;
+  let startLeft = 0;
+  let moved = false;
+  el.addEventListener('pointerdown', (ev) => {
+    if (ev.button != null && ev.button !== 0) return;
+    if (ev.target.closest('a, button, input, select, textarea, label, summary, [data-pick], .fh-det')) return;
+    down = true;
+    moved = false;
+    startX = ev.clientX;
+    startLeft = el.scrollLeft;
+    el.setPointerCapture?.(ev.pointerId);
+  });
+  el.addEventListener('pointermove', (ev) => {
+    if (!down) return;
+    const dx = ev.clientX - startX;
+    if (Math.abs(dx) > 3) {
+      moved = true;
+      el.classList.add('is-dragging');
+      document.body.classList.add('fh-is-dragging');
+    }
+    if (moved) el.scrollLeft = startLeft - dx;
+  });
+  const end = () => {
+    if (!down) return;
+    down = false;
+    el.classList.remove('is-dragging');
+    document.body.classList.remove('fh-is-dragging');
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+  el.addEventListener('click', (ev) => {
+    if (moved) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      moved = false;
+    }
+  }, true);
+}
+
+function enableBoardDragScroll() {
+  enableDragScroll(document.querySelector('.fh-view-strip'));
+  for (const sel of ['.fh-week', '.fh-week-rows', '.fh-month', '.fh-vessel-week-grid']) {
+    mainEl.querySelectorAll(sel).forEach(enableDragScroll);
+  }
+}
 
 function syncLocalDatalists() {
   const ports = document.getElementById('loc-port-list');
@@ -3152,6 +3250,8 @@ function syncStickyTop() {
 
 async function init() {
   applyStaticUi();
+  applyBoardFit();
+  enableDragScroll(document.querySelector('.fh-view-strip'));
   if (!dateEl.value) dateEl.value = todayISO();
   setStatus('Loading ports…');
   syncStickyTop();

@@ -16,13 +16,50 @@
 }
 
 .fh-top {
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.35rem;
   position: sticky;
   top: 0;
   z-index: 20;
   background: linear-gradient(180deg, #0a3d4a 0%, rgba(10, 61, 74, 0.96) 100%);
   animation: none;
-  min-height: 4.5rem;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fh-strip-a {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem 0.6rem;
+  position: sticky;
+  top: 0;
+  z-index: 21;
+  background: inherit;
+}
+
+.fh-strip-a .brand-block {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fh-strip-a .brand-block h1 {
+  font-size: clamp(1.05rem, 2.6vw, 1.45rem);
+  margin: 0;
+}
+
+.fh-strip-a .index-count {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+}
+
+.fh-filters-btn {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+  padding: 0.3rem 0.55rem;
 }
 
 .fh-top .controls.fh-controls {
@@ -30,14 +67,14 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  gap: 0.35rem;
+  gap: 0.25rem;
   min-width: 0;
 }
 
 .fh-ctrl-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.45rem;
+  gap: 0.25rem 0.4rem;
   align-items: center;
 }
 
@@ -52,8 +89,28 @@
   min-width: 2.6rem;
 }
 
+.fh-view-strip {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  cursor: grab;
+}
+
+.fh-view-strip.is-dragging,
+.fh-drag-scroll.is-dragging,
+body.fh-is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.fh-view-seg {
+  flex: 0 0 auto;
+  width: max-content;
+}
+
 .fh-ctrl-actions {
-  padding-top: 0.2rem;
+  padding-top: 0.15rem;
   border-top: 1px solid rgba(232, 244, 242, 0.12);
 }
 
@@ -78,41 +135,66 @@
   color: var(--sea-mid, #146377);
 }
 
-.fh-filters-fold,
 .fh-trip-fold {
-  margin: 0;
-}
-
-.fh-trip-fold {
-  margin-bottom: 0.55rem;
+  margin: 0 0 0.55rem;
   padding-bottom: 0.45rem;
   border-bottom: 1px solid var(--line, #d5e0dd);
 }
 
-.fh-filters-fold > summary.fh-filters-title,
 .fh-trip-fold > summary.fh-filters-title {
   cursor: pointer;
   list-style: none;
   font-weight: 700;
 }
 
-.fh-filters-fold > summary::-webkit-details-marker,
 .fh-trip-fold > summary::-webkit-details-marker {
   display: none;
 }
 
-.fh-filters-fold > summary::before,
 .fh-trip-fold > summary::before {
   content: "▾ ";
   opacity: 0.7;
 }
 
-.fh-filters-fold:not([open]) > summary::before,
 .fh-trip-fold:not([open]) > summary::before {
   content: "▸ ";
 }
 
-/* Folding trip/filters only changes height inside the column — board width stays put. */
+.fh-side-tabs {
+  display: flex;
+  gap: 0.2rem;
+  margin: 0 0 0.55rem;
+  padding: 2px;
+  background: #e8f0ee;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.fh-side-tab {
+  flex: 1 1 0;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 0;
+  background: transparent;
+  color: #1a2e2a;
+  padding: 0.35rem 0.45rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.fh-side-tab.active,
+.fh-side-tab[aria-selected="true"] {
+  background: #fff;
+  color: var(--sea-mid, #146377);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.fh-tab-panel[hidden] {
+  display: none !important;
+}
+
+/* Trip fold / tabs only change height inside the column — board width stays put. */
 
 :root {
   --fh-board-font: 14px;
@@ -630,7 +712,7 @@ tr.fh-pickable:hover {
 @media (max-width: 899px) {
   .fh-main {
     overflow: auto;
-    max-height: calc(100dvh - 8rem);
+    max-height: calc(100dvh - 6.5rem);
   }
   .fh-mobile-only {
     display: inline-flex;
@@ -638,8 +720,40 @@ tr.fh-pickable:hover {
   .fh-drawer-head.fh-mobile-only {
     display: flex;
   }
+  .fh-top {
+    position: static; /* compact strips; only strip A sticks via its own sticky */
+    padding-top: 0.35rem;
+    padding-bottom: 0.25rem;
+  }
   .fh-top .controls {
     width: 100%;
+    gap: 0.2rem;
+  }
+  .fh-ctrl-tag {
+    display: none;
+  }
+  .fh-ctrl-actions {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .fh-ctrl-actions .status {
+    flex: 1 1 100%;
+    font-size: 0.72rem;
+    min-width: 0;
+  }
+  .fh-ctrl-actions .fh-progress {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+  .fh-dates label {
+    font-size: 0.72rem;
+  }
+  .fh-dates input[type="date"] {
+    max-width: 9.5rem;
+    padding: 0.15rem 0.25rem;
+  }
+  .fh-table-search {
+    margin: 0.25rem 0.5rem 0.35rem;
   }
   .fh-panel-pos {
     display: none !important;
@@ -695,11 +809,13 @@ tr.fh-pickable:hover {
   .fh-vessel-day-dual {
     grid-template-columns: 1fr;
   }
+  /* Default mobile week stacks; board-fit scroll/shrink overrides below. */
   .fh-week {
     grid-template-columns: 1fr;
   }
   .seg-btn {
-    padding: 0.35rem 0.45rem;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.78rem;
   }
 }
 
@@ -1003,6 +1119,83 @@ tr.fh-pickable:hover {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0.35rem;
+}
+
+/* Board fit: comfortable scroll vs shrink-to-viewport (week / month / vessels-week). */
+.fh-drag-scroll {
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.fh-board-fit-scroll .fh-week,
+body.fh-board-fit-scroll .fh-week-rows,
+body.fh-board-fit-scroll .fh-month,
+body.fh-board-fit-scroll .fh-vessel-week-grid {
+  overflow-x: auto;
+}
+
+body.fh-board-fit-scroll .fh-week {
+  grid-template-columns: repeat(7, minmax(7rem, 1fr));
+}
+
+body.fh-board-fit-scroll .fh-week-rows {
+  grid-template-columns: 3.2rem repeat(7, minmax(7rem, 1fr));
+}
+
+body.fh-board-fit-scroll .fh-month {
+  grid-template-columns: repeat(7, minmax(5.5rem, 1fr));
+}
+
+body.fh-board-fit-scroll .fh-vessel-week-grid {
+  grid-template-columns: repeat(7, minmax(9rem, 1fr));
+}
+
+body.fh-board-fit-shrink .fh-week,
+body.fh-board-fit-shrink .fh-month {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  overflow-x: visible;
+}
+
+body.fh-board-fit-shrink .fh-week-rows {
+  grid-template-columns: 2.4rem repeat(7, minmax(0, 1fr));
+  overflow-x: visible;
+  gap: 0.2rem;
+}
+
+body.fh-board-fit-shrink .fh-vessel-week-grid {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  overflow-x: visible;
+}
+
+body.fh-board-fit-shrink .fh-week-item,
+body.fh-board-fit-shrink .fh-month-cell,
+body.fh-board-fit-shrink .fh-vessel-week-col {
+  font-size: 0.65rem;
+}
+
+body.fh-board-fit-shrink .fh-week-col,
+body.fh-board-fit-shrink .fh-week-rows-cell,
+body.fh-board-fit-shrink .fh-month-cell,
+body.fh-board-fit-shrink .fh-vessel-week-col {
+  padding: 0.15rem;
+  min-width: 0;
+}
+
+body.fh-board-fit-shrink .fh-week-dests,
+body.fh-board-fit-shrink .fh-leg-line1,
+body.fh-board-fit-shrink .fh-leg-line2 {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 899px) {
+  body.fh-board-fit-scroll .fh-week,
+  body.fh-board-fit-shrink .fh-week {
+    grid-template-columns: repeat(7, minmax(7rem, 1fr));
+  }
+  body.fh-board-fit-shrink .fh-week {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
 }
 
 .fh-week-col {
