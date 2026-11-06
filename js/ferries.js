@@ -2953,7 +2953,6 @@ document.getElementById('fh-show-trip-picker')?.addEventListener('change', (e) =
   state.showTripPicker = !!e.target.checked;
   savePrefs();
   renderTripSide();
-  syncFiltersCollapsed?.();
 });
 function applyBoardFont(px) {
   const n = Math.max(12, Math.min(18, Number(px) || 14));
