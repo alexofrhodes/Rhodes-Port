@@ -16,7 +16,7 @@ const state = {
   vessels: [],
   companies: [],
   fetching: false,
-  direction: 'both',
+  direction: 'both', // always leave+return; Show control removed
   sortCol: 'depart',
   sortDir: 'asc',
   groupVoyages: true,
@@ -28,7 +28,9 @@ const state = {
   weekLegOrder: 'out_in', // out_in | by_time
   weekSplit: 'dual', // dual | rows
   vesselsDensity: 'normal', // roomy | normal | tight
-  showTripPicker: true,
+  showTripPicker: false,
+  /** Next Pick button goes to this slot when set ('out' | 'in'). */
+  pickArm: null,
   syncWeekScroll: true,
   outFrom: '00:00',
   outTo: '23:59',
@@ -206,11 +208,26 @@ function pinSelectedOptions(sel) {
   for (const o of [...selected, ...rest]) sel.appendChild(o);
 }
 
+function optionDisplayName(opt) {
+  return String(opt?.text || '')
+    .replace(/\s*\([^)]*\)\s*$/, '')
+    .trim() || String(opt?.value || '');
+}
+
 function updateListSelectionUi(sel) {
   if (!sel) return;
-  const n = sel.selectedOptions.length;
+  const picked = [...sel.selectedOptions];
   const countEl = document.getElementById(`${sel.id}-count`);
-  if (countEl) countEl.textContent = n > 0 ? `(${n})` : '';
+  if (countEl) {
+    if (!picked.length) countEl.textContent = '';
+    else {
+      const names = picked.map(optionDisplayName);
+      const max = 3;
+      const shown = names.slice(0, max);
+      const more = names.length - shown.length;
+      countEl.textContent = more > 0 ? `(${shown.join(', ')} +${more})` : `(${shown.join(', ')})`;
+    }
+  }
   pinSelectedOptions(sel);
   refilterList(sel);
   const first = sel.selectedOptions[0];
@@ -362,9 +379,9 @@ function filteredSailings() {
     .split(/\s+/)
     .filter(Boolean);
   const hubs = hubNames();
-  const showDir = directionEl?.value || state.direction || 'both';
+  const showDir = 'both';
   let rows = state.sailings.slice();
-  // Show out/in — apply once so day/agenda/week/month all respect it.
+  // Always leave+return (Show control removed).
   if (showDir === 'out' || showDir === 'in') {
     rows = rows.filter((r) => matchesShowDirection(r, showDir, hubs));
   }
@@ -615,28 +632,31 @@ function officeRowFromVoyage(v) {
 }
 
 function officeTableHtml(officeRows) {
-  const th = OFFICE_COLS.map(([k, lab]) => `<th class="${k === 'dir' ? 'dir' : ''}">${escapeHtml(lab)}</th>`).join(
-    '',
-  );
+  const th =
+    OFFICE_COLS.map(([k, lab]) => `<th class="${k === 'dir' ? 'dir' : ''}">${escapeHtml(lab)}</th>`).join('') +
+    '<th class="fh-pick-th"></th>';
   let body = '';
   if (!officeRows.length) {
-    body = `<tr><td colspan="${OFFICE_COLS.length}">—</td></tr>`;
+    body = `<tr><td colspan="${OFFICE_COLS.length + 1}">—</td></tr>`;
   } else {
     for (const r of officeRows) {
       const trAttrs = r._pickAttrs
-        ? `${r._pickAttrs} title="Double-click to pick for trip"`
+        ? `${r._pickAttrs} title="Double-click or Pick to add to trip"`
         : '';
+      const pickTd = r._pickKey
+        ? `<td class="fh-pick-td"><button type="button" class="ghost-dark fh-pick-btn" data-pick-btn="${escapeAttr(r._pickKey)}">Pick</button></td>`
+        : '<td class="fh-pick-td"></td>';
       body += `<tr${trAttrs ? ` ${trAttrs}` : ''}>${OFFICE_COLS.map(
         ([k]) => `<td class="${k === 'dir' ? 'dir' : ''}">${escapeHtml(String(r[k] ?? ''))}</td>`,
-      ).join('')}</tr>`;
+      ).join('')}${pickTd}</tr>`;
     }
   }
   return `<table class="fh-day-table"><thead><tr>${th}</tr></thead><tbody>${body}</tbody></table>`;
 }
 
 function officeRowWithPick(row, pickSource) {
-  const { attrs } = pickMeta(pickSource);
-  return { ...row, _pickAttrs: attrs };
+  const { attrs, key } = pickMeta(pickSource);
+  return { ...row, _pickAttrs: attrs, _pickKey: key };
 }
 
 function officeBucketHtml(bucketRows, { showEmpty } = {}) {
@@ -659,10 +679,11 @@ function officeBucketHtml(bucketRows, { showEmpty } = {}) {
   );
   const cards = bucketRows
     .map((r) => {
-      const { attrs } = pickMeta(r, 'fh-leg-card');
+      const { attrs, key } = pickMeta(r, 'fh-leg-card');
       const block = formatLegBlockHtml(legValsFromRow(r), {
         wrapClass: 'fh-card-body',
         localPill: r.source === 'Local',
+        pickKey: key,
       });
       return `<article ${attrs}>${block}<div class="fh-links">${opLinks(r)}${detailsBtn(r)}</div></article>`;
     })
@@ -825,7 +846,12 @@ function vesselDayPortRows(legs) {
 
 function vesselBlockHtml(vessel, legs) {
   const ports = vesselDayPortRows(legs);
-  let html = `<div class="fh-vessel-block"><div class="fh-vessel-head"><h4>${escapeHtml(vessel)}</h4></div>
+  const pickSrc = legs?.[0];
+  const meta = pickSrc ? pickMeta(pickSrc, 'fh-vessel-block') : null;
+  const wrap = meta ? meta.attrs : 'class="fh-vessel-block"';
+  let html = `<div ${wrap}><div class="fh-vessel-head"><h4>${escapeHtml(vessel)}</h4>${
+    meta ? pickBtnHtml(meta.key) : ''
+  }</div>
     <table class="fh-vessel-table"><thead><tr><th>Port</th><th>Arrival</th><th>Departure</th></tr></thead><tbody>`;
   for (const p of ports) {
     html += `<tr><td>${escapeHtml(p.port)}</td><td>${escapeHtml(p.arrival || '—')}</td><td>${escapeHtml(p.departure || '—')}</td></tr>`;
@@ -940,17 +966,52 @@ function setFetchUi(running) {
 }
 
 function setView(view) {
-  state.view = view;
-  document.querySelectorAll('[data-view]').forEach((b) => b.classList.toggle('active', b.dataset.view === view));
+  state.view = view || 'day';
+  document.querySelectorAll('[data-view]').forEach((b) => b.classList.toggle('active', b.dataset.view === state.view));
   applySmartDisplay();
+}
+
+function syncSegGroup(attr, value) {
+  document.querySelectorAll(`[${attr}]`).forEach((b) => {
+    b.classList.toggle('active', b.getAttribute(attr) === value);
+  });
 }
 
 function applyBoardFit() {
   const fit = state.boardFit === 'shrink' ? 'shrink' : 'scroll';
   document.body.classList.remove('fh-board-fit-scroll', 'fh-board-fit-shrink');
   document.body.classList.add(`fh-board-fit-${fit}`);
-  const el = document.getElementById('fh-board-fit');
-  if (el && el.value !== fit) el.value = fit;
+  syncSegGroup('data-board-fit', fit);
+}
+
+function applyPickArm() {
+  if (state.pickArm !== 'out' && state.pickArm !== 'in') {
+    state.pickArm = !state.tripPicks.out ? 'out' : !state.tripPicks.in ? 'in' : 'out';
+  }
+  document.querySelectorAll('.fh-trip-bar-slot').forEach((el) => {
+    el.classList.toggle('is-armed', el.dataset.slot === state.pickArm);
+  });
+}
+
+function resolvePickSlot(r) {
+  if (state.pickArm === 'out' || state.pickArm === 'in') return state.pickArm;
+  const hubs = hubNames();
+  const leave = isLeaving(r, hubs);
+  const ret = isReturning(r, hubs);
+  if (leave && !ret) return 'out';
+  if (ret && !leave) return 'in';
+  if ((r.direction || '') === 'in') return 'in';
+  if ((r.direction || '') === 'out') return 'out';
+  if (!state.tripPicks.out) return 'out';
+  if (!state.tripPicks.in) return 'in';
+  return 'out';
+}
+
+function tripBarSummary(r) {
+  if (!r) return '<p class="muted fh-pick-empty">— empty —</p>';
+  return `<p class="fh-pick-body">${escapeHtml(dirMark(r.direction))} ${escapeHtml(r.date || '')}
+${escapeHtml(r.depart || '—')} → ${escapeHtml(r.arrive || '—')} · ${escapeHtml(r.vessel || '—')}
+${escapeHtml(r.origin || '—')} → ${escapeHtml(r.dest || '—')}</p>`;
 }
 
 function applySmartDisplay() {
@@ -965,8 +1026,7 @@ function applySmartDisplay() {
     week: !smart || v === 'week' || v === 'month',
     'week-split': !smart || v === 'week',
     vessels: !smart || v === 'vessels',
-    'board-fit': !smart || v === 'week' || v === 'month' || v === 'vessels',
-    trip: !smart || v === 'day' || v === 'agenda',
+    'board-fit': true,
   };
   // Class + hidden: `.fh-check`/`.fh-filter-field { display:flex }` beats bare [hidden].
   document.querySelectorAll('[data-display]').forEach((el) => {
@@ -1011,6 +1071,27 @@ const PORT_ALIAS = {
 function portKey(name) {
   const u = String(name || '').toUpperCase().trim();
   return PORT_ALIAS[u] || u;
+}
+
+/** One hub label for Rhodes/RODOS/RHODOS — keep value "Rhodes" so cache slugs stay `rhodes`. */
+function canonicalHubName(name) {
+  return portKey(name) === 'RODOS' ? 'Rhodes' : String(name || '').trim();
+}
+
+function normalizePortsList(ports) {
+  const out = [];
+  let sawRhodes = false;
+  for (const p of ports || []) {
+    if (portKey(p.name) === 'RODOS') {
+      if (sawRhodes) continue;
+      sawRhodes = true;
+      out.push({ ...p, name: 'Rhodes', code: p.code || 'RHO' });
+      continue;
+    }
+    out.push(p);
+  }
+  if (!sawRhodes) out.unshift({ name: 'Rhodes', code: 'RHO', country: 'Greece' });
+  return out;
 }
 
 function hubNames() {
@@ -1074,11 +1155,12 @@ async function loadPorts() {
   } catch {
     /* ignore */
   }
-  const selected = prefs.origins?.length ? prefs.origins : ['Rhodes'];
-  if (prefs.direction) {
-    state.direction = prefs.direction;
-    directionEl.value = prefs.direction;
-  }
+  const selectedRaw = prefs.origins?.length ? prefs.origins : ['Rhodes'];
+  const selected = [...new Set(selectedRaw.map(canonicalHubName).filter(Boolean))];
+  if (!selected.length) selected.push('Rhodes');
+  prefs.origins = selected;
+  state.direction = 'both';
+  if (directionEl) directionEl.value = 'both';
   state.groupVoyages = prefs.group_voyages !== false;
   const groupEl = document.getElementById('fh-group');
   if (groupEl) groupEl.checked = state.groupVoyages;
@@ -1093,7 +1175,7 @@ async function loadPorts() {
   state.agendaGroup = prefs.agenda_group === 'direction' ? 'direction' : 'day';
   state.weekLegOrder = prefs.week_leg_order === 'by_time' ? 'by_time' : 'out_in';
   state.weekSplit = prefs.week_split === 'rows' ? 'rows' : 'dual';
-  state.showTripPicker = prefs.show_trip_picker !== false;
+  state.showTripPicker = !!prefs.show_trip_picker;
   const fromPref = String(prefs.board_from || '').trim();
   const toPref = String(prefs.board_to || '').trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(fromPref)) dateEl.value = fromPref;
@@ -1102,25 +1184,20 @@ async function loadPorts() {
   else if (toPref === '') {
     /* keep empty To = view-derived range */
   }
-  const vlEl = document.getElementById('fh-vessels-layout');
-  if (vlEl) vlEl.value = state.vesselsLayout;
   const vaEl = document.getElementById('fh-vessels-autofit');
   if (vaEl) vaEl.checked = state.vesselsAutofit;
-  const vdEl = document.getElementById('fh-vessels-density');
-  if (vdEl) vdEl.value = state.vesselsDensity || 'normal';
   const sdEl = document.getElementById('fh-smart-display');
   if (sdEl) sdEl.checked = state.smartDisplay;
-  const bfEl = document.getElementById('fh-board-fit');
-  if (bfEl) bfEl.value = state.boardFit;
+  syncSegGroup('data-vessels-layout', state.vesselsLayout === 'week' ? 'week' : 'stack');
+  syncSegGroup(
+    'data-vessels-density',
+    state.vesselsDensity === 'roomy' || state.vesselsDensity === 'tight' ? state.vesselsDensity : 'normal',
+  );
+  syncSegGroup('data-agenda-group', state.agendaGroup === 'direction' ? 'direction' : 'day');
+  syncSegGroup('data-week-leg-order', state.weekLegOrder === 'by_time' ? 'by_time' : 'out_in');
+  syncSegGroup('data-week-split', state.weekSplit === 'rows' ? 'rows' : 'dual');
   applyBoardFit();
-  const agEl = document.getElementById('fh-agenda-group');
-  if (agEl) agEl.value = state.agendaGroup;
-  const wloEl = document.getElementById('fh-week-leg-order');
-  if (wloEl) wloEl.value = state.weekLegOrder;
-  const wsEl = document.getElementById('fh-week-split');
-  if (wsEl) wsEl.value = state.weekSplit;
-  const stpEl = document.getElementById('fh-show-trip-picker');
-  if (stpEl) stpEl.checked = state.showTripPicker;
+  applyPickArm();
   applySmartDisplay();
   applySidebar(prefs.sidebar === 'right' ? 'right' : 'left');
   if (Array.isArray(prefs.export_formats) && prefs.export_formats.length) {
@@ -1133,9 +1210,13 @@ async function loadPorts() {
   } else {
     state.exportFormats = savedExportFormats();
   }
-  const names = state.ports.map((p) => p.name);
+  state.ports = normalizePortsList(state.ports);
+  const names = new Set(state.ports.map((p) => p.name));
   for (const o of selected) {
-    if (o && !names.includes(o)) state.ports.unshift({ name: o, code: '', country: 'Greece' });
+    if (o && !names.has(o)) {
+      state.ports.unshift({ name: o, code: '', country: 'Greece' });
+      names.add(o);
+    }
   }
   if (!state.ports.length) {
     state.ports = [
@@ -1314,7 +1395,7 @@ function rangeParams() {
   } else if (!to) {
     to = from;
   }
-  const direction = directionEl.value || state.direction || 'both';
+  const direction = 'both';
   state.direction = direction;
   const q = new URLSearchParams({ origins, from, direction });
   if (to) q.set('to', to);
@@ -1388,6 +1469,7 @@ async function loadSailings({ signal, quiet = false } = {}) {
         ? ' · no returns yet — Fetch with Leaving+returning'
         : '';
     const mode = data.static || isStaticHost() ? ' · cached (static)' : '';
+    if (data.static) applyStaticUi(true);
     setStatus(
       `${state.sailings.length} legs (${nOut} leave / ${nIn} return) · ${groupVoyages(state.sailings).length} voyages${miss}${dirHint}${mode}`,
     );
@@ -1533,7 +1615,7 @@ async function savePrefs() {
     origins: selectedValues(originsEl),
     dests: selectedValues(destsEl),
     vessels: selectedValues(vesselsEl),
-    direction: directionEl.value || 'both',
+    direction: 'both',
     group_voyages: state.groupVoyages,
     vessels_layout: state.vesselsLayout || 'stack',
     vessels_autofit: state.vesselsAutofit !== false,
@@ -1565,8 +1647,8 @@ async function savePrefs() {
   }
 }
 
-function applyStaticUi() {
-  if (!isStaticHost()) return;
+function applyStaticUi(force = false) {
+  if (!force && !isStaticHost()) return;
   document.body.classList.add('fh-static');
   for (const id of [
     'fh-fetch',
@@ -1879,16 +1961,21 @@ function registerPick(r) {
   return key;
 }
 
+function rowMatchesPick(p, r) {
+  return (
+    !!p &&
+    p.depart === r.depart &&
+    p.vessel === r.vessel &&
+    p.origin === r.origin &&
+    p.dest === r.dest &&
+    p.date === r.date
+  );
+}
+
 function pickMeta(r, extraClass = '') {
   const key = registerPick(r);
-  const slot = (r.direction || 'out') === 'in' ? 'in' : 'out';
   const picked =
-    state.tripPicks[slot] &&
-    state.tripPicks[slot].depart === r.depart &&
-    state.tripPicks[slot].vessel === r.vessel &&
-    state.tripPicks[slot].origin === r.origin &&
-    state.tripPicks[slot].dest === r.dest &&
-    state.tripPicks[slot].date === r.date;
+    rowMatchesPick(state.tripPicks.out, r) || rowMatchesPick(state.tripPicks.in, r);
   const cls = [
     extraClass,
     'fh-pickable',
@@ -1898,6 +1985,10 @@ function pickMeta(r, extraClass = '') {
     .filter(Boolean)
     .join(' ');
   return { key, attrs: `class="${cls}" data-pick="${escapeAttr(key)}"` };
+}
+
+function pickBtnHtml(key) {
+  return `<button type="button" class="ghost-dark fh-pick-btn" data-pick-btn="${escapeAttr(key)}">Pick</button>`;
 }
 
 function pickAttr(r, extraClass = '') {
@@ -1918,81 +2009,76 @@ function updateFiltersBadge() {
 }
 
 function renderTripSide() {
-  const side = document.getElementById('fh-trip-side');
-  // Trip pick only works from day/agenda cards — hide on week/month/vessels or when pref off.
-  if (side) {
-    const show =
-      state.showTripPicker !== false && (state.view === 'day' || state.view === 'agenda');
-    side.hidden = !show;
-    side.classList.toggle('is-hidden', !show);
+  const dock = document.getElementById('fh-trip-dock');
+  const bar = document.getElementById('fh-trip-bar');
+  const toggle = document.getElementById('fh-trip-toggle');
+  const dockOn = ['day', 'agenda', 'week', 'vessels'].includes(state.view || 'day');
+  const open = dockOn && !!state.showTripPicker;
+  if (dock) dock.hidden = !dockOn;
+  if (bar) bar.hidden = !open;
+  document.body.classList.toggle('fh-trip-bar-on', open);
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.textContent = open ? 'Trip ▾' : 'Trip ▸';
   }
+  applyPickArm();
   updateFiltersBadge();
   for (const slot of ['out', 'in']) {
     const el = document.getElementById(slot === 'out' ? 'fh-pick-out' : 'fh-pick-in');
     if (!el) continue;
     const r = state.tripPicks[slot];
     const title = slot === 'out' ? 'Outbound' : 'Return';
-    if (!r) {
-      el.innerHTML = `<h3>${title}</h3><p class="muted fh-pick-empty">— select from table —</p>`;
-      continue;
-    }
-    const legUrl = bookingUrlForPicks(slot === 'out' ? r : null, slot === 'in' ? r : null);
-    el.innerHTML = `<h3>${title}</h3>
-      <p class="fh-pick-body">${escapeHtml(dirMark(r.direction))} ${escapeHtml(r.date || '')}
-${escapeHtml(r.depart || '—')} → ${escapeHtml(r.arrive || '—')}
-${escapeHtml(r.vessel || '—')}
-${escapeHtml(r.operator || '—')}
-${escapeHtml(r.origin || '—')} → ${escapeHtml(r.dest || '—')}
-Via ${escapeHtml(r.via || '—')} · ${escapeHtml(r.price || '—')} · ${escapeHtml(r.duration || '—')}</p>
-      <div class="fh-pick-actions">
-        ${
-          legUrl
-            ? `<a class="ghost-dark" href="${escapeAttr(legUrl)}" target="_blank" rel="noopener">Book leg</a>`
-            : '<span class="muted">No book link</span>'
-        }
-        <button type="button" class="ghost-dark fh-pick-clear" data-clear="${slot}">Clear</button>
-        ${detailsBtn(r)}
-      </div>`;
+    el.innerHTML = `<div class="fh-trip-bar-slot-head"><h3>${title}</h3>
+      ${
+        r
+          ? `<button type="button" class="ghost-dark fh-pick-clear" data-clear="${slot}">Clear</button>`
+          : ''
+      }</div>${tripBarSummary(r)}`;
   }
-  let both = document.getElementById('fh-book-selected');
-  if (side && !both) {
-    both = document.createElement('a');
-    both.id = 'fh-book-selected';
-    both.className = 'ghost-dark fh-book-selected';
-    both.target = '_blank';
-    both.rel = 'noopener';
-    side.appendChild(both);
-  }
+  const both = document.getElementById('fh-book-selected');
   if (both) {
     const url = bookingUrlForPicks(state.tripPicks.out, state.tripPicks.in);
     if (url) {
       both.href = url;
-      both.textContent = 'Book selected on Ferryhopper';
+      both.textContent = 'Book selected';
       both.removeAttribute('aria-disabled');
       both.classList.remove('is-disabled');
     } else {
       both.removeAttribute('href');
-      both.textContent = 'Book selected (double-click a row)';
+      both.textContent = 'Book selected';
       both.setAttribute('aria-disabled', 'true');
       both.classList.add('is-disabled');
     }
   }
-  elBindTripSide();
+  elBindTripBar();
 }
 
-function elBindTripSide() {
+function elBindTripBar() {
   document.querySelectorAll('.fh-pick-clear').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      state.tripPicks[btn.dataset.clear] = null;
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const slot = btn.dataset.clear;
+      state.tripPicks[slot] = null;
+      state.pickArm = slot;
+      setStatus(`Cleared ${slot === 'in' ? 'return' : 'outbound'}`);
       render();
     });
   });
-  document.querySelectorAll('#fh-trip-side .fh-det').forEach((btn) => {
-    btn.addEventListener('click', () => openDetails(btn.dataset.id));
+  document.querySelectorAll('.fh-trip-bar-slot').forEach((el) => {
+    if (el.dataset.armBound === '1') return;
+    el.dataset.armBound = '1';
+    el.addEventListener('click', (ev) => {
+      if (ev.target.closest('.fh-pick-clear, a, button')) return;
+      state.pickArm = el.dataset.slot === 'in' ? 'in' : 'out';
+      applyPickArm();
+      setStatus(`Next Pick → ${state.pickArm === 'in' ? 'return' : 'outbound'}`);
+    });
   });
   const both = document.getElementById('fh-book-selected');
   if (both && !both.dataset.bound) {
     both.dataset.bound = '1';
+    both.target = '_blank';
+    both.rel = 'noopener';
     both.addEventListener('click', (ev) => {
       if (!both.href || both.classList.contains('is-disabled')) {
         ev.preventDefault();
@@ -2005,8 +2091,11 @@ function elBindTripSide() {
 }
 
 function setTripPick(r) {
-  const slot = (r.direction || 'out') === 'in' ? 'in' : 'out';
-  state.tripPicks[slot] = ensureClientBookUrl({ ...r });
+  const slot = resolvePickSlot(r);
+  state.tripPicks[slot] = ensureClientBookUrl({ ...r, direction: slot === 'in' ? 'in' : 'out' });
+  state.pickArm = !state.tripPicks.out ? 'out' : !state.tripPicks.in ? 'in' : slot === 'out' ? 'in' : 'out';
+  state.showTripPicker = true;
+  savePrefs();
   setStatus(
     `Picked ${slot === 'in' ? 'return' : 'outbound'}: ${r.depart || ''} ${r.vessel || ''} ${r.origin || ''}→${r.dest || ''}`,
   );
@@ -2122,7 +2211,7 @@ function segHtml(text, bold) {
   return bold ? `<strong>${t}</strong>` : t;
 }
 
-function formatLegBlockHtml(vals, { wrapClass = '', localPill = false } = {}) {
+function formatLegBlockHtml(vals, { wrapClass = '', localPill = false, outerAttrs = '', pickKey = '' } = {}) {
   const vis = state.fieldVisible;
   const bld = state.fieldBold;
   let line1 = `${escapeHtml(vals.mark || '')} `;
@@ -2146,10 +2235,13 @@ function formatLegBlockHtml(vals, { wrapClass = '', localPill = false } = {}) {
     line2Parts.push(segHtml(vals[key], bld[key]));
   }
   const line2 = line2Parts.join(' · ');
-  if (!has1 && !line2) return `<div class="${wrapClass}">—</div>`;
-  let html = `<div class="${wrapClass}">`;
+  const open = outerAttrs || `class="${wrapClass}"`;
+  const pick = pickKey ? `<div class="fh-pick-row">${pickBtnHtml(pickKey)}</div>` : '';
+  if (!has1 && !line2) return `<div ${open}>—${pick}</div>`;
+  let html = `<div ${open}>`;
   if (has1) html += `<div class="fh-leg-line1">${line1}</div>`;
   if (line2) html += `<div class="fh-leg-line2 meta">${line2}</div>`;
+  html += pick;
   html += '</div>';
   return html;
 }
@@ -2198,39 +2290,30 @@ function legValsFromVoyage(v) {
 
 function voyageCardHtml(v) {
   const pick = voyageAsPick(v);
+  const { attrs, key } = pickMeta(pick, 'fh-card');
   const block = formatLegBlockHtml(legValsFromVoyage(v), {
     wrapClass: 'fh-card-body',
     localPill: v.source === 'Local',
+    pickKey: key,
   });
-  return `<article ${pickAttr(pick, 'fh-card')}>
+  return `<article ${attrs}>
     ${block}
     <div class="fh-links">${voyageLinks(v)}${voyageDetailsBtn(v)}</div>
   </article>`;
 }
 
-function preferTapToPick() {
-  return window.matchMedia('(max-width: 899px), (pointer: coarse)').matches;
+function applyTripPickFromKey(key) {
+  const r = pickByKey.get(key);
+  if (r) setTripPick(r);
 }
 
 function bindPickClicks() {
-  mainEl.querySelectorAll('[data-pick]').forEach((el) => {
-    const pick = () => {
-      const r = pickByKey.get(el.dataset.pick);
-      if (r) setTripPick(r);
-    };
-    el.addEventListener('dblclick', (ev) => {
-      if (ev.target.closest('a,button')) return;
+  mainEl.querySelectorAll('[data-pick-btn]').forEach((btn) => {
+    btn.addEventListener('click', (ev) => {
       ev.preventDefault();
-      pick();
+      ev.stopPropagation();
+      applyTripPickFromKey(btn.dataset.pickBtn);
     });
-    // Mobile cards: single tap (desktop tables keep dblclick only).
-    if (preferTapToPick() && el.matches('article, .fh-card, .fh-leg-card')) {
-      el.addEventListener('click', (ev) => {
-        if (ev.target.closest('a,button')) return;
-        ev.preventDefault();
-        pick();
-      });
-    }
   });
 }
 
@@ -2252,7 +2335,7 @@ function bookMatchHint(out, ret) {
 function renderDay(rows) {
   if (!rows.length) return '<p class="muted">No sailings for this filter / cache.</p>';
   const hubs = hubNames();
-  const dir = directionEl.value || 'both';
+  const dir = 'both';
   const sections = [];
   if (dir === 'both' || dir === 'out') {
     const leaving = rows.filter((r) => isLeaving(r, hubs));
@@ -2288,7 +2371,7 @@ function renderAgendaBucketBody(bucketRows, { showEmpty } = {}) {
 function renderAgenda(rows) {
   if (!rows.length) return '<p class="muted">No sailings.</p>';
   const hubs = hubNames();
-  const dir = directionEl.value || 'both';
+  const dir = 'both';
   const byDayMode = state.agendaGroup === 'day' && dir === 'both';
 
   let html = '<div class="fh-agenda">';
@@ -2387,8 +2470,20 @@ function orderWeekDayRows(dayRows, hubs, showDir) {
 function weekItemsHtml(ordered) {
   const voyages = state.groupVoyages ? groupVoyages(ordered) : null;
   const items = voyages
-    ? voyages.map((v) => formatLegBlockHtml(legValsFromVoyage(v), { wrapClass: 'fh-week-item' }))
-    : ordered.map((r) => formatLegBlockHtml(legValsFromRow(r), { wrapClass: 'fh-week-item' }));
+    ? voyages.map((v) => {
+        const meta = pickMeta(voyageAsPick(v), 'fh-week-item');
+        return formatLegBlockHtml(legValsFromVoyage(v), {
+          outerAttrs: meta.attrs,
+          pickKey: meta.key,
+        });
+      })
+    : ordered.map((r) => {
+        const meta = pickMeta(r, 'fh-week-item');
+        return formatLegBlockHtml(legValsFromRow(r), {
+          outerAttrs: meta.attrs,
+          pickKey: meta.key,
+        });
+      });
   const n = voyages ? voyages.length : ordered.length;
   return {
     n,
@@ -2401,7 +2496,7 @@ function renderWeek(rows) {
   const from = weekStartISO(dateEl.value || todayISO());
   const start = new Date(from + 'T12:00:00');
   const hubs = hubNames();
-  const showDir = directionEl.value || state.direction || 'both';
+  const showDir = 'both';
   const split = state.weekSplit === 'rows' ? 'rows' : 'dual';
   const days = [];
   for (let i = 0; i < 7; i++) {
@@ -2459,7 +2554,7 @@ function renderMonth(rows) {
   const last = new Date(y, m + 1, 0);
   const startPad = (first.getDay() + 6) % 7;
   const hubs = hubNames();
-  const showDir = directionEl.value || state.direction || 'both';
+  const showDir = 'both';
   const byDay = new Map();
   for (const r of rows) {
     if (!r.date) continue;
@@ -2501,7 +2596,7 @@ function dayTitle(iso) {
 function renderDayGrouped(rows) {
   if (!rows.length) return '<p class="muted">No sailings for this filter / cache.</p>';
   const hubs = hubNames();
-  const dir = directionEl.value || 'both';
+  const dir = 'both';
   const sections = [];
   if (dir === 'both' || dir === 'out') {
     sections.push({ title: `Leaving ${hubs.join(', ')}`, rows: rows.filter((r) => isLeaving(r, hubs)) });
@@ -2999,16 +3094,23 @@ document.getElementById('fh-clear-all-cache')?.addEventListener('click', () => {
 document.querySelectorAll('[data-jump]').forEach((btn) => {
   btn.addEventListener('click', () => jumpRange(btn.dataset.jump));
 });
+document.addEventListener('click', (ev) => {
+  const jump = document.getElementById('fh-jump');
+  if (jump?.open && !jump.contains(ev.target)) jump.removeAttribute('open');
+});
 document.getElementById('fh-group')?.addEventListener('change', (e) => {
   state.groupVoyages = !!e.target.checked;
   savePrefs();
   render();
 });
-document.getElementById('fh-vessels-layout')?.addEventListener('change', (e) => {
-  state.vesselsLayout = e.target.value === 'week' ? 'week' : 'stack';
-  savePrefs();
-  applySmartDisplay();
-  render();
+document.querySelectorAll('[data-vessels-layout]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    state.vesselsLayout = btn.dataset.vesselsLayout === 'week' ? 'week' : 'stack';
+    syncSegGroup('data-vessels-layout', state.vesselsLayout);
+    savePrefs();
+    applySmartDisplay();
+    render();
+  });
 });
 document.getElementById('fh-vessels-autofit')?.addEventListener('change', (e) => {
   state.vesselsAutofit = !!e.target.checked;
@@ -3020,34 +3122,48 @@ document.getElementById('fh-smart-display')?.addEventListener('change', (e) => {
   savePrefs();
   applySmartDisplay();
 });
-document.getElementById('fh-board-fit')?.addEventListener('change', (e) => {
-  state.boardFit = e.target.value === 'shrink' ? 'shrink' : 'scroll';
-  savePrefs();
-  applyBoardFit();
+document.querySelectorAll('[data-board-fit]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    state.boardFit = btn.dataset.boardFit === 'shrink' ? 'shrink' : 'scroll';
+    savePrefs();
+    applyBoardFit();
+  });
 });
-document.getElementById('fh-agenda-group')?.addEventListener('change', (e) => {
-  state.agendaGroup = e.target.value === 'direction' ? 'direction' : 'day';
-  savePrefs();
-  render();
+document.querySelectorAll('[data-agenda-group]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    state.agendaGroup = btn.dataset.agendaGroup === 'direction' ? 'direction' : 'day';
+    syncSegGroup('data-agenda-group', state.agendaGroup);
+    savePrefs();
+    render();
+  });
 });
-document.getElementById('fh-week-leg-order')?.addEventListener('change', (e) => {
-  state.weekLegOrder = e.target.value === 'by_time' ? 'by_time' : 'out_in';
-  savePrefs();
-  render();
+document.querySelectorAll('[data-week-leg-order]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    state.weekLegOrder = btn.dataset.weekLegOrder === 'by_time' ? 'by_time' : 'out_in';
+    syncSegGroup('data-week-leg-order', state.weekLegOrder);
+    savePrefs();
+    render();
+  });
 });
-document.getElementById('fh-week-split')?.addEventListener('change', (e) => {
-  state.weekSplit = e.target.value === 'rows' ? 'rows' : 'dual';
-  savePrefs();
-  render();
+document.querySelectorAll('[data-week-split]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    state.weekSplit = btn.dataset.weekSplit === 'rows' ? 'rows' : 'dual';
+    syncSegGroup('data-week-split', state.weekSplit);
+    savePrefs();
+    render();
+  });
 });
-document.getElementById('fh-vessels-density')?.addEventListener('change', (e) => {
-  const v = e.target.value;
-  state.vesselsDensity = v === 'roomy' || v === 'tight' ? v : 'normal';
-  savePrefs();
-  render();
+document.querySelectorAll('[data-vessels-density]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const v = btn.dataset.vesselsDensity;
+    state.vesselsDensity = v === 'roomy' || v === 'tight' ? v : 'normal';
+    syncSegGroup('data-vessels-density', state.vesselsDensity);
+    savePrefs();
+    render();
+  });
 });
-document.getElementById('fh-show-trip-picker')?.addEventListener('change', (e) => {
-  state.showTripPicker = !!e.target.checked;
+document.getElementById('fh-trip-toggle')?.addEventListener('click', () => {
+  state.showTripPicker = !state.showTripPicker;
   savePrefs();
   renderTripSide();
 });
@@ -3160,13 +3276,6 @@ companiesEl?.addEventListener('change', () => {
   updateListSelectionUi(companiesEl);
   render();
 });
-directionEl.addEventListener('change', () => {
-  state.direction = directionEl.value;
-  savePrefs();
-  render(); // apply Show out/in immediately in every view
-  loadSailings(); // then refresh cache slice for that direction
-});
-
 const filtersEl = document.getElementById('fh-filters');
 const filtersScrim = document.getElementById('fh-filters-scrim');
 const filtersToggle = document.getElementById('fh-filters-toggle');
@@ -3190,17 +3299,13 @@ function setDrawerTab(tab) {
   } catch {
     /* ignore */
   }
-  const head = document.querySelector('.fh-drawer-head strong');
-  if (head) head.textContent = next === 'display' ? 'Display' : 'Filters';
 }
 
 function setFiltersOpen(open) {
   document.body.classList.toggle('fh-filters-open', !!open);
   filtersToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
   if (filtersScrim) filtersScrim.setAttribute('aria-hidden', open ? 'false' : 'true');
-  if (open) {
-    document.getElementById('fh-filters-close')?.focus?.();
-  }
+  if (open) filtersToggle?.focus?.();
 }
 
 function closeFiltersDrawer() {
@@ -3210,7 +3315,6 @@ function closeFiltersDrawer() {
 filtersToggle?.addEventListener('click', () => {
   setFiltersOpen(!document.body.classList.contains('fh-filters-open'));
 });
-document.getElementById('fh-filters-close')?.addEventListener('click', closeFiltersDrawer);
 filtersScrim?.addEventListener('click', closeFiltersDrawer);
 document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && document.body.classList.contains('fh-filters-open')) {
@@ -3237,9 +3341,7 @@ function enableDragScroll(el, { axes = 'x' } = {}) {
   let startY = 0;
   let startLeft = 0;
   let startTop = 0;
-  let startWinY = 0;
   let moved = false;
-  const canY = () => el.scrollHeight > el.clientHeight + 1;
   const end = (ev) => {
     if (!down) return;
     if (ev && activeId != null && ev.pointerId != null && ev.pointerId !== activeId) return;
@@ -3258,8 +3360,8 @@ function enableDragScroll(el, { axes = 'x' } = {}) {
   };
   el.addEventListener('pointerdown', (ev) => {
     if (ev.button != null && ev.button !== 0) return;
-    if (ev.target.closest('a, button, input, select, textarea, label, summary, [data-pick], .fh-det, .fh-links')) return;
-    // Innermost bound target owns the gesture (nested board/main/week).
+    if (ev.target.closest('a, button, input, select, textarea, label, summary, .fh-det, .fh-links')) return;
+    // Innermost bound target owns the gesture (nested week/day vs board).
     ev.stopPropagation();
     down = true;
     moved = false;
@@ -3268,7 +3370,6 @@ function enableDragScroll(el, { axes = 'x' } = {}) {
     startY = ev.clientY;
     startLeft = el.scrollLeft;
     startTop = el.scrollTop;
-    startWinY = window.scrollY;
     try {
       el.setPointerCapture?.(ev.pointerId);
     } catch {
@@ -3286,10 +3387,7 @@ function enableDragScroll(el, { axes = 'x' } = {}) {
     }
     if (!moved) return;
     if (ax.includes('x')) el.scrollLeft = startLeft - dx;
-    if (ax.includes('y')) {
-      if (canY()) el.scrollTop = startTop - dy;
-      else window.scrollTo(0, startWinY - dy);
-    }
+    if (ax.includes('y')) el.scrollTop = startTop - dy;
   });
   // Document-level end: nested capture otherwise leaves parent `down` stuck.
   document.addEventListener('pointerup', end);
@@ -3309,13 +3407,10 @@ function enableDragScroll(el, { axes = 'x' } = {}) {
 }
 
 function enableBoardDragScroll() {
+  // Single scroller: nested binds + stopPropagation blocked day/agenda pan.
   enableDragScroll(document.querySelector('.fh-view-strip'), { axes: 'x' });
-  enableDragScroll(mainEl, { axes: 'xy' });
   const board = document.querySelector('.fh-board');
-  if (board && board !== mainEl) enableDragScroll(board, { axes: 'xy' });
-  for (const sel of ['.fh-week', '.fh-week-rows', '.fh-month', '.fh-vessel-week-grid']) {
-    mainEl.querySelectorAll(sel).forEach((node) => enableDragScroll(node, { axes: 'x' }));
-  }
+  if (board) enableDragScroll(board, { axes: 'xy' });
 }
 
 function syncLocalDatalists() {
@@ -3332,13 +3427,13 @@ function syncLocalDatalists() {
   }
 }
 
-/** Keep filter sticky offset under sticky nav + header (wraps on narrow widths). */
+/** Measure chrome heights (header is in-flow — do not set style.top or it leaves a gap). */
 function syncStickyTop() {
   const nav = document.querySelector('.fh-page .app-nav');
   const top = document.querySelector('.fh-top');
   const navH = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
   document.documentElement.style.setProperty('--fh-nav-h', `${navH}px`);
-  if (top) top.style.top = `${navH}px`;
+  if (top) top.style.top = '';
   const topH = top ? Math.ceil(top.getBoundingClientRect().height) : 0;
   const h = navH + topH;
   if (h > 0) document.documentElement.style.setProperty('--fh-sticky-top', `${h}px`);

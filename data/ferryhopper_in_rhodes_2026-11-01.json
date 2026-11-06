@@ -1,0 +1,202 @@
+{
+  "date": "2026-11-01",
+  "origin": "Rhodes",
+  "hub": "Rhodes",
+  "direction": "in",
+  "retrieved_at": "2026-11-06T13:12:21Z",
+  "destinations": [
+    {
+      "name": "SYMI",
+      "code": "SYM",
+      "country": "Greece"
+    },
+    {
+      "name": "KOS",
+      "code": "KGS",
+      "country": "Greece"
+    },
+    {
+      "name": "KALYMNOS",
+      "code": "KAL",
+      "country": "Greece"
+    },
+    {
+      "name": "LEROS",
+      "code": "LER",
+      "country": "Greece"
+    },
+    {
+      "name": "PATMOS",
+      "code": "PMS",
+      "country": "Greece"
+    },
+    {
+      "name": "TILOS",
+      "code": "THL",
+      "country": "Greece"
+    },
+    {
+      "name": "NISYROS",
+      "code": "NIS",
+      "country": "Greece"
+    },
+    {
+      "name": "CHALKI",
+      "code": "CHL",
+      "country": "Greece"
+    },
+    {
+      "name": "KASTELLORIZO",
+      "code": "KAZ",
+      "country": "Greece"
+    },
+    {
+      "name": "PIRAEUS",
+      "code": "PIR",
+      "country": "Greece"
+    },
+    {
+      "name": "HERAKLIO",
+      "code": "HER",
+      "country": "Greece"
+    },
+    {
+      "name": "MILOS",
+      "code": "MLO",
+      "country": "Greece"
+    },
+    {
+      "name": "BODRUM",
+      "code": "BXN",
+      "country": "Turkey"
+    },
+    {
+      "name": "MARMARIS",
+      "code": "MAR",
+      "country": "Turkey"
+    },
+    {
+      "name": "FETHIYE",
+      "code": "FET",
+      "country": "Turkey"
+    },
+    {
+      "name": "AG. KIRIKOS",
+      "code": "AGK",
+      "country": "Greece"
+    },
+    {
+      "name": "AG.MARINA (LEROS)",
+      "code": "AGM",
+      "country": "Greece"
+    },
+    {
+      "name": "AGATHONISI",
+      "code": "AGA",
+      "country": "Greece"
+    },
+    {
+      "name": "ANAFI",
+      "code": "ANA",
+      "country": "Greece"
+    },
+    {
+      "name": "ARKI",
+      "code": "ARK",
+      "country": "Greece"
+    },
+    {
+      "name": "ASTYPALEA",
+      "code": "JTY",
+      "country": "Greece"
+    },
+    {
+      "name": "CHIOS",
+      "code": "CHI",
+      "country": "Greece"
+    },
+    {
+      "name": "DIAFANI",
+      "code": "DFN",
+      "country": "Greece"
+    },
+    {
+      "name": "FOURNI",
+      "code": "FOU",
+      "country": "Greece"
+    },
+    {
+      "name": "IKARIA",
+      "code": "IKA",
+      "country": "Greece"
+    },
+    {
+      "name": "KARPATHOS",
+      "code": "AOK",
+      "country": "Greece"
+    },
+    {
+      "name": "KASOS",
+      "code": "KSJ",
+      "country": "Greece"
+    },
+    {
+      "name": "KATAPOLA",
+      "code": "AMO",
+      "country": "Greece"
+    },
+    {
+      "name": "LIPSI",
+      "code": "LIP",
+      "country": "Greece"
+    },
+    {
+      "name": "PANORMITIS",
+      "code": "PAN",
+      "country": "Greece"
+    },
+    {
+      "name": "PYTHAGORIO",
+      "code": "PYT",
+      "country": "Greece"
+    },
+    {
+      "name": "SITIA",
+      "code": "JSH",
+      "country": "Greece"
+    },
+    {
+      "name": "SYROS",
+      "code": "JSY",
+      "country": "Greece"
+    },
+    {
+      "name": "THIRA (SANTORINI)",
+      "code": "JTR",
+      "country": "Greece"
+    },
+    {
+      "name": "TINOS",
+      "code": "TIN",
+      "country": "Greece"
+    },
+    {
+      "name": "VATHI (SAMOS)",
+      "code": "BTH",
+      "country": "Greece"
+    }
+  ],
+  "n_destinations": 36,
+  "n_sailings": 0,
+  "sailings": [],
+  "errors": [
+    "LEROS: Cannot reach Ferryhopper (TLS/certificate). Check network or try again.",
+    "TILOS: Cannot reach Ferryhopper (TLS/certificate). Check network or try again.",
+    "KOS: Cannot reach Ferryhopper (TLS/certificate). Check network or try again.",
+    "SYMI: Cannot reach Ferryhopper (TLS/certificate). Check network or try again.",
+    "IKARIA: Leg 2 departs from EYD, but leg 1 arrives at IKA. Each leg must depart from the port the previous leg arrived at — add a leg from IKA to EYD, or correct the port codes.",
+    "THIRA (SANTORINI): Leg 2 departs from TRS, but leg 1 arrives at JTR. Each leg must depart from the port the previous leg arrived at — add a leg from JTR to TRS, or correct the port codes."
+  ],
+  "source": "Ferryhopper MCP",
+  "note": "Published arrivals into Rhodes for 2026-11-01 via Ferryhopper MCP (round-trip pack). 0 sailings from 36 ports."
+}

@@ -52,6 +52,25 @@ body {
   animation: rise 0.55s ease-out both;
 }
 
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.brand-mark {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.4rem;
+  display: block;
+}
+
+.brand-text {
+  min-width: 0;
+}
+
 .brand-block h1 {
   margin: 0;
   font-family: var(--font-display);

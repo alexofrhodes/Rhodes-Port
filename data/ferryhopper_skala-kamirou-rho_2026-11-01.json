@@ -2,7 +2,7 @@
   "date": "2026-11-01",
   "origin": "SKALA KAMIROU(RHO)",
   "direction": "out",
-  "retrieved_at": "2026-11-01T17:14:57Z",
+  "retrieved_at": "2026-11-06T13:10:08Z",
   "destinations": [
     {
       "name": "PIRAEUS",
@@ -28,7 +28,9 @@
   "n_destinations": 4,
   "n_sailings": 0,
   "sailings": [],
-  "errors": [],
+  "errors": [
+    "POROS: Cannot reach Ferryhopper (TLS/certificate). Check network or try again."
+  ],
   "source": "Ferryhopper MCP",
-  "note": "Published SKALA KAMIROU(RHO) departures for 2026-11-01 via Ferryhopper MCP. 0 sailings across 4 destinations."
+  "note": "Published SKALA KAMIROU(RHO) departures for 2026-11-01 via Ferryhopper MCP (round-trip pack). 0 sailings across 4 destinations."
 }

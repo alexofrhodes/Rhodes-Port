@@ -52,12 +52,15 @@ export async function fetchJson(url, init) {
 
 /** Mirror porttracker.ferryhopper.origin_slug */
 export function originSlug(origin) {
-  const s = String(origin || 'unknown')
-    .trim()
+  const raw = String(origin || 'unknown').trim();
+  // Published day/conn JSON uses rhodes, not Ferryhopper RODOS spelling.
+  if (/^(rhodes|rhodos|rodos)$/i.test(raw)) return 'rhodes';
+  const s = raw
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-  return s || 'unknown';}
+  return s || 'unknown';
+}
 
 export function dataUrl(name) {
   return apiUrl(`data/${String(name).replace(/^\//, '')}`);

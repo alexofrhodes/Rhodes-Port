@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0a3d4a" />
     <title>Ferryhopper planner — Rhodes Port Tracker</title>
-    <link rel="stylesheet" href="./css/styles.css" />
-    <link rel="stylesheet" href="./css/ferries.css?v=10" />
+    <link rel="icon" href="./icons/icon-32.png?v=24" type="image/png" sizes="32x32" />
+    <link rel="icon" href="./icons/icon-16.png?v=24" type="image/png" sizes="16x16" />
+    <link rel="shortcut icon" href="./icons/icon.ico?v=24" />
+    <link rel="icon" href="./icons/icon.svg?v=24" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png?v=24" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./css/styles.css?v=24" />
+    <link rel="stylesheet" href="./css/ferries.css?v=24" />
   </head>
   <body class="fh-page fh-sidebar-left">
     <div class="atmosphere" aria-hidden="true"></div>
@@ -21,8 +27,11 @@
     <header class="top fh-top">
       <div class="fh-strip fh-strip-a">
         <div class="brand-block">
-          <h1>Ferryhopper planner</h1>
-          <p class="index-count" id="index-count"></p>
+          <img class="brand-mark" src="./icons/icon-32.png?v=24" width="32" height="32" alt="" />
+          <div class="brand-text">
+            <h1>Ferryhopper planner</h1>
+            <p id="fh-status" class="status index-count" aria-live="polite">Ready</p>
+          </div>
         </div>
         <button type="button" id="fh-filters-toggle" class="ghost fh-filters-btn fh-mobile-only" aria-expanded="false" aria-controls="fh-filters">
           Filters <span id="fh-filters-badge" class="fh-filters-badge" hidden></span>
@@ -51,8 +60,12 @@
               <button type="button" data-jump="this_next_month">This and next month</button>
             </div>
           </details>
+          <button type="button" id="fh-disrupt-btn" class="ghost fh-disrupt-btn" aria-haspopup="dialog">
+            Disruptions <span id="fh-disrupt-count" class="fh-disrupt-count">0</span>
+          </button>
         </div>
-        <div class="fh-ctrl-row fh-strip-c fh-view-strip" role="group" aria-label="View">
+        <div class="fh-ctrl-row fh-strip-c fh-view-strip" role="group" aria-label="Views">
+          <span class="fh-ctrl-tag">Views</span>
           <div class="seg fh-view-seg" role="group" aria-label="Board view">
             <button type="button" class="seg-btn active" data-view="day">Day</button>
             <button type="button" class="seg-btn" data-view="agenda">Agenda</button>
@@ -60,6 +73,7 @@
             <button type="button" class="seg-btn" data-view="month">Month</button>
             <button type="button" class="seg-btn" data-view="vessels">Vessels</button>
           </div>
+          <button type="button" id="fh-export" class="ghost">Export…</button>
         </div>
         <div class="fh-ctrl-row fh-ctrl-actions fh-strip-d" role="group" aria-label="Data">
           <span class="fh-ctrl-tag">Data</span>
@@ -73,38 +87,22 @@
               <button type="button" id="fh-clear-all-cache">Clear all…</button>
             </div>
           </details>
-          <button type="button" id="fh-export" class="ghost">Export…</button>
           <button type="button" id="fh-local-open" class="ghost">Add local…</button>
-          <button type="button" id="fh-disrupt-btn" class="ghost fh-disrupt-btn" aria-haspopup="dialog">
-            Disruptions <span id="fh-disrupt-count" class="fh-disrupt-count">0</span>
-          </button>
           <progress id="fh-progress" class="fh-progress" max="1" value="0" hidden></progress>
-          <p id="fh-status" class="status" aria-live="polite">Ready</p>
+        </div>
+        <div class="fh-table-search no-print fh-strip-search">
+          <span class="search-wrap">
+            <input type="search" id="fh-q" placeholder="Search… (space = multi)" title="Space-separated partials; all must match" autocomplete="off" />
+            <button type="button" id="fh-q-x" class="q-clear always" aria-label="Clear table search">×</button>
+          </span>
         </div>
       </div>
     </header>
 
     <div class="fh-filters-scrim no-print" id="fh-filters-scrim" aria-hidden="true"></div>
     <div class="fh-layout">
-      <aside class="panel fh-filters no-print" id="fh-filters" aria-label="Filters and trip picker">
-        <div class="fh-drawer-head fh-mobile-only">
-          <strong>Filters</strong>
-          <button type="button" id="fh-filters-close" class="ghost" aria-label="Close filters">Close</button>
-        </div>
+      <aside class="panel fh-filters no-print" id="fh-filters" aria-label="Filters and display">
         <div class="fh-side-chrome">
-          <div class="fh-trip-fold" id="fh-trip-side" aria-label="Trip picker">
-            <p class="fh-filters-title">Trip picker</p>
-            <p class="muted fh-trip-hint fh-trip-hint-desktop">Double-click a → leaving or ← return row. Book opens the day list — pick the matching vessel/time on Ferryhopper (their URL cannot pre-select a sailing).</p>
-            <p class="muted fh-trip-hint fh-trip-hint-mobile">Tap a leg card to pick outbound or return. Book opens Ferryhopper’s day list — select the matching vessel/time there.</p>
-            <section class="fh-trip-card" id="fh-pick-out" data-slot="out">
-              <h3>Outbound</h3>
-              <p class="muted fh-pick-empty">— select from table —</p>
-            </section>
-            <section class="fh-trip-card" id="fh-pick-in" data-slot="in">
-              <h3>Return</h3>
-              <p class="muted fh-pick-empty">— select from table —</p>
-            </section>
-          </div>
           <div class="fh-side-tabs" role="tablist" aria-label="Display and filters">
             <button type="button" class="fh-side-tab" role="tab" id="fh-tab-display" data-tab="display" aria-controls="fh-panel-display" aria-selected="false">Display</button>
             <button type="button" class="fh-side-tab active" role="tab" id="fh-tab-filters" data-tab="filters" aria-controls="fh-panel-filters" aria-selected="true">Filters</button>
@@ -119,49 +117,52 @@
             <label class="fh-check fh-check-dark" data-display="group" title="Group multi-leg voyages (day, agenda, week, month).">
               <input type="checkbox" id="fh-group" checked /> Group voyages
             </label>
-            <label class="fh-filter-field" data-display="vessels" title="Stack = same-day cards in a row; week = Mon–Sun grid.">Vessels layout
-              <select id="fh-vessels-layout">
-                <option value="stack" selected>Stack by day</option>
-                <option value="week">Week (Mon–Sun)</option>
-              </select>
-            </label>
+            <div class="fh-filter-field" data-display="vessels" title="Stack = same-day cards in a row; week = Mon–Sun grid.">
+              <span class="fh-panel-pos-label">Vessels layout</span>
+              <div class="seg seg-compact" role="group" aria-label="Vessels layout">
+                <button type="button" class="seg-btn active" data-vessels-layout="stack">Stack</button>
+                <button type="button" class="seg-btn" data-vessels-layout="week">Week</button>
+              </div>
+            </div>
             <label class="fh-check fh-check-dark" data-display="vessels" title="Tables size to content instead of full column width.">
               <input type="checkbox" id="fh-vessels-autofit" checked /> Autofit vessel tables
             </label>
-            <label class="fh-filter-field" data-display="vessels" title="Gap between vessel cards.">Space
-              <select id="fh-vessels-density">
-                <option value="roomy">Roomy</option>
-                <option value="normal" selected>Normal</option>
-                <option value="tight">Tight</option>
-              </select>
-            </label>
-            <label class="fh-filter-field" data-display="agenda" title="Agenda nesting: by day (out then return) or by direction then days.">Agenda group
-              <select id="fh-agenda-group">
-                <option value="day" selected>By day → out / return</option>
-                <option value="direction">By direction → days</option>
-              </select>
-            </label>
-            <label class="fh-filter-field" data-display="week" title="Out then return: all leaving first, then returns. By time: one timeline.">Week order
-              <select id="fh-week-leg-order">
-                <option value="out_in" selected>Out then return</option>
-                <option value="by_time">By departure time</option>
-              </select>
-            </label>
-            <label class="fh-filter-field" data-display="week-split" title="dual = days down Out|Return; rows = Out/Return bands across Mon–Sun.">Week split
-              <select id="fh-week-split">
-                <option value="dual" selected>Days ↓ Out|Return</option>
-                <option value="rows">Out / Return bands</option>
-              </select>
-            </label>
-            <label class="fh-filter-field" data-display="board-fit" title="Horizontal grids: scroll with comfortable cells, or shrink columns to the viewport.">Board fit
-              <select id="fh-board-fit">
-                <option value="scroll" selected>Comfortable (scroll)</option>
-                <option value="shrink">Shrink to fit</option>
-              </select>
-            </label>
-            <label class="fh-check fh-check-dark" data-display="trip" title="Show trip picker on Day and Agenda views">
-              <input type="checkbox" id="fh-show-trip-picker" checked /> Trip picker
-            </label>
+            <div class="fh-filter-field" data-display="vessels" title="Gap between vessel cards.">
+              <span class="fh-panel-pos-label">Space</span>
+              <div class="seg seg-compact" role="group" aria-label="Vessel card spacing">
+                <button type="button" class="seg-btn" data-vessels-density="roomy">Roomy</button>
+                <button type="button" class="seg-btn active" data-vessels-density="normal">Normal</button>
+                <button type="button" class="seg-btn" data-vessels-density="tight">Tight</button>
+              </div>
+            </div>
+            <div class="fh-filter-field" data-display="agenda" title="Agenda nesting: by day (out then return) or by direction then days.">
+              <span class="fh-panel-pos-label">Agenda group</span>
+              <div class="seg seg-compact" role="group" aria-label="Agenda group">
+                <button type="button" class="seg-btn active" data-agenda-group="day">By day</button>
+                <button type="button" class="seg-btn" data-agenda-group="direction">By direction</button>
+              </div>
+            </div>
+            <div class="fh-filter-field" data-display="week" title="Out then return: all leaving first, then returns. By time: one timeline.">
+              <span class="fh-panel-pos-label">Week order</span>
+              <div class="seg seg-compact" role="group" aria-label="Week leg order">
+                <button type="button" class="seg-btn active" data-week-leg-order="out_in">Out then return</button>
+                <button type="button" class="seg-btn" data-week-leg-order="by_time">By time</button>
+              </div>
+            </div>
+            <div class="fh-filter-field" data-display="week-split" title="dual = days down Out|Return; rows = Out/Return bands across Mon–Sun.">
+              <span class="fh-panel-pos-label">Week split</span>
+              <div class="seg seg-compact" role="group" aria-label="Week split">
+                <button type="button" class="seg-btn active" data-week-split="dual">Days ↓ Out|Return</button>
+                <button type="button" class="seg-btn" data-week-split="rows">Out / Return bands</button>
+              </div>
+            </div>
+            <div class="fh-filter-field" data-display="board-fit" title="Comfortable scroll, or shrink to fit the viewport.">
+              <span class="fh-panel-pos-label">Board fit</span>
+              <div class="seg seg-compact" role="group" aria-label="Board fit">
+                <button type="button" class="seg-btn active" data-board-fit="scroll">Comfortable</button>
+                <button type="button" class="seg-btn" data-board-fit="shrink">Fit</button>
+              </div>
+            </div>
             <label class="fh-filter-field" data-display="font" title="Board font size.">Font size
               <input type="range" id="fh-font" min="12" max="18" step="1" value="14" />
             </label>
@@ -183,13 +184,6 @@
 
         <div class="fh-tab-panel" id="fh-panel-filters" role="tabpanel" aria-labelledby="fh-tab-filters">
           <section class="fh-filter-sec">
-            <label class="fh-filter-field">Show
-              <select id="fh-direction">
-                <option value="both" selected>Leaving + returning</option>
-                <option value="out">Leaving hub (From)</option>
-                <option value="in">Returning to hub (To)</option>
-              </select>
-            </label>
             <div class="fh-time-filters">
               <label class="fh-filter-field">Out times
                 <span class="fh-time-pair">
@@ -251,13 +245,22 @@
       </aside>
 
       <div class="fh-board">
-      <div class="fh-table-search no-print">
-        <span class="search-wrap">
-          <input type="search" id="fh-q" placeholder="Search… (space = multi)" title="Space-separated partials; all must match" autocomplete="off" />
-          <button type="button" id="fh-q-x" class="q-clear always" aria-label="Clear table search">×</button>
-        </span>
-      </div>
       <main id="fh-main" class="panel fh-main"></main>
+      </div>
+    </div>
+
+    <div id="fh-trip-dock" class="fh-trip-dock no-print" hidden>
+      <button type="button" id="fh-trip-toggle" class="ghost-dark fh-trip-toggle" aria-expanded="false" aria-controls="fh-trip-bar" title="Show or hide trip picker">Trip ▸</button>
+      <div id="fh-trip-bar" class="fh-trip-bar" hidden>
+        <section class="fh-trip-bar-slot" id="fh-pick-out" data-slot="out" tabindex="0" title="Click to arm outbound — next Pick goes here">
+          <h3>Outbound</h3>
+          <p class="muted fh-pick-empty">— empty —</p>
+        </section>
+        <section class="fh-trip-bar-slot" id="fh-pick-in" data-slot="in" tabindex="0" title="Click to arm return — next Pick goes here">
+          <h3>Return</h3>
+          <p class="muted fh-pick-empty">— empty —</p>
+        </section>
+        <a id="fh-book-selected" class="ghost-dark fh-book-selected is-disabled" aria-disabled="true">Book selected</a>
       </div>
     </div>
     </div>
@@ -330,6 +333,6 @@
     </dialog>
 
     <script type="module" src="./js/nav.js"></script>
-    <script type="module" src="./js/ferries.js?v=10"></script>
+    <script type="module" src="./js/ferries.js?v=24"></script>
   </body>
 </html>

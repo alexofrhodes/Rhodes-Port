@@ -1,0 +1,445 @@
+{
+  "date": "2026-11-10",
+  "origin": "Rhodes",
+  "direction": "out",
+  "retrieved_at": "2026-11-06T13:12:21Z",
+  "destinations": [
+    {
+      "name": "SYMI",
+      "code": "SYM",
+      "country": "Greece"
+    },
+    {
+      "name": "KOS",
+      "code": "KGS",
+      "country": "Greece"
+    },
+    {
+      "name": "KALYMNOS",
+      "code": "KAL",
+      "country": "Greece"
+    },
+    {
+      "name": "LEROS",
+      "code": "LER",
+      "country": "Greece"
+    },
+    {
+      "name": "PATMOS",
+      "code": "PMS",
+      "country": "Greece"
+    },
+    {
+      "name": "TILOS",
+      "code": "THL",
+      "country": "Greece"
+    },
+    {
+      "name": "NISYROS",
+      "code": "NIS",
+      "country": "Greece"
+    },
+    {
+      "name": "CHALKI",
+      "code": "CHL",
+      "country": "Greece"
+    },
+    {
+      "name": "KASTELLORIZO",
+      "code": "KAZ",
+      "country": "Greece"
+    },
+    {
+      "name": "PIRAEUS",
+      "code": "PIR",
+      "country": "Greece"
+    },
+    {
+      "name": "HERAKLIO",
+      "code": "HER",
+      "country": "Greece"
+    },
+    {
+      "name": "MILOS",
+      "code": "MLO",
+      "country": "Greece"
+    },
+    {
+      "name": "BODRUM",
+      "code": "BXN",
+      "country": "Turkey"
+    },
+    {
+      "name": "MARMARIS",
+      "code": "MAR",
+      "country": "Turkey"
+    },
+    {
+      "name": "FETHIYE",
+      "code": "FET",
+      "country": "Turkey"
+    },
+    {
+      "name": "AG. KIRIKOS",
+      "code": "AGK",
+      "country": "Greece"
+    },
+    {
+      "name": "AG.MARINA (LEROS)",
+      "code": "AGM",
+      "country": "Greece"
+    },
+    {
+      "name": "AGATHONISI",
+      "code": "AGA",
+      "country": "Greece"
+    },
+    {
+      "name": "ANAFI",
+      "code": "ANA",
+      "country": "Greece"
+    },
+    {
+      "name": "ARKI",
+      "code": "ARK",
+      "country": "Greece"
+    },
+    {
+      "name": "ASTYPALEA",
+      "code": "JTY",
+      "country": "Greece"
+    },
+    {
+      "name": "CHIOS",
+      "code": "CHI",
+      "country": "Greece"
+    },
+    {
+      "name": "DIAFANI",
+      "code": "DFN",
+      "country": "Greece"
+    },
+    {
+      "name": "FOURNI",
+      "code": "FOU",
+      "country": "Greece"
+    },
+    {
+      "name": "IKARIA",
+      "code": "IKA",
+      "country": "Greece"
+    },
+    {
+      "name": "KARPATHOS",
+      "code": "AOK",
+      "country": "Greece"
+    },
+    {
+      "name": "KASOS",
+      "code": "KSJ",
+      "country": "Greece"
+    },
+    {
+      "name": "KATAPOLA",
+      "code": "AMO",
+      "country": "Greece"
+    },
+    {
+      "name": "LIPSI",
+      "code": "LIP",
+      "country": "Greece"
+    },
+    {
+      "name": "PANORMITIS",
+      "code": "PAN",
+      "country": "Greece"
+    },
+    {
+      "name": "PYTHAGORIO",
+      "code": "PYT",
+      "country": "Greece"
+    },
+    {
+      "name": "SITIA",
+      "code": "JSH",
+      "country": "Greece"
+    },
+    {
+      "name": "SYROS",
+      "code": "JSY",
+      "country": "Greece"
+    },
+    {
+      "name": "THIRA (SANTORINI)",
+      "code": "JTR",
+      "country": "Greece"
+    },
+    {
+      "name": "TINOS",
+      "code": "TIN",
+      "country": "Greece"
+    },
+    {
+      "name": "VATHI (SAMOS)",
+      "code": "BTH",
+      "country": "Greece"
+    }
+  ],
+  "n_destinations": 36,
+  "n_sailings": 7,
+  "sailings": [
+    {
+      "date": "2026-11-10",
+      "date_display": "10/11/26",
+      "weekday": "Tuesday",
+      "vessel": "SAONISOS",
+      "mmsi": "",
+      "operator": "SAOS FERRIES",
+      "kind": "ferry",
+      "kind_label": "Ferry (published)",
+      "arrive": "19:50",
+      "depart": "14:50",
+      "origin": "RODOS",
+      "search_origin": "Rhodes",
+      "dest": "KASTELLORIZO",
+      "via": "—",
+      "berth": "—",
+      "price": "€15",
+      "duration_min": 300,
+      "duration": "5h00m",
+      "source": "Ferryhopper",
+      "starred": false,
+      "projected": false,
+      "trip_id": "RHO/KAZ/2026-11-10T14:50:00Z/2",
+      "dep_code": "RHO",
+      "arr_code": "KAZ",
+      "book_url": "https://www.ferryhopper.com/booking/results?itinerary=RHO,KAZ&dates=20261110",
+      "has_vehicles": true,
+      "has_pets": true,
+      "has_cabin": false,
+      "has_eticket": true,
+      "direction": "out",
+      "operator_url": "https://www.saos.gr/",
+      "operator_contact": "+30 25510 26777",
+      "operator_schedules": "https://www.saos.gr/"
+    },
+    {
+      "date": "2026-11-10",
+      "date_display": "10/11/26",
+      "weekday": "Tuesday",
+      "vessel": "BLUE STAR CHIOS",
+      "mmsi": "",
+      "operator": "BLUE STAR FERRIES",
+      "kind": "ferry",
+      "kind_label": "Ferry (published)",
+      "arrive": "17:15",
+      "depart": "15:30",
+      "origin": "RODOS",
+      "search_origin": "Rhodes",
+      "dest": "CHALKI",
+      "via": "—",
+      "berth": "—",
+      "price": "€8",
+      "duration_min": 105,
+      "duration": "1h45m",
+      "source": "Ferryhopper",
+      "starred": false,
+      "projected": false,
+      "trip_id": "RHO/CHL/2026-11-10T15:30:00Z/00022",
+      "dep_code": "RHO",
+      "arr_code": "CHL",
+      "book_url": "https://www.ferryhopper.com/booking/results?itinerary=RHO,CHL&dates=20261110",
+      "has_vehicles": true,
+      "has_pets": true,
+      "has_cabin": false,
+      "has_eticket": true,
+      "direction": "out",
+      "operator_url": "https://www.bluestarferries.com/",
+      "operator_contact": "+30 210 891 9800",
+      "operator_schedules": "https://www.bluestarferries.com/en/ferry-routes-schedules"
+    },
+    {
+      "date": "2026-11-10",
+      "date_display": "10/11/26",
+      "weekday": "Tuesday",
+      "vessel": "BLUE STAR CHIOS",
+      "mmsi": "",
+      "operator": "BLUE STAR FERRIES",
+      "kind": "ferry",
+      "kind_label": "Ferry (published)",
+      "arrive": "19:15",
+      "depart": "15:30",
+      "origin": "RODOS",
+      "search_origin": "Rhodes",
+      "dest": "DIAFANI",
+      "via": "—",
+      "berth": "—",
+      "price": "€17",
+      "duration_min": 225,
+      "duration": "3h45m",
+      "source": "Ferryhopper",
+      "starred": false,
+      "projected": false,
+      "trip_id": "RHO/DFN/2026-11-10T15:30:00Z/00022",
+      "dep_code": "RHO",
+      "arr_code": "DFN",
+      "book_url": "https://www.ferryhopper.com/booking/results?itinerary=RHO,DFN&dates=20261110",
+      "has_vehicles": true,
+      "has_pets": true,
+      "has_cabin": false,
+      "has_eticket": true,
+      "direction": "out",
+      "operator_url": "https://www.bluestarferries.com/",
+      "operator_contact": "+30 210 891 9800",
+      "operator_schedules": "https://www.bluestarferries.com/en/ferry-routes-schedules"
+    },
+    {
+      "date": "2026-11-10",
+      "date_display": "10/11/26",
+      "weekday": "Tuesday",
+      "vessel": "BLUE STAR CHIOS",
+      "mmsi": "",
+      "operator": "BLUE STAR FERRIES",
+      "kind": "ferry",
+      "kind_label": "Ferry (published)",
+      "arrive": "20:15",
+      "depart": "15:30",
+      "origin": "RODOS",
+      "search_origin": "Rhodes",
+      "dest": "KARPATHOS",
+      "via": "—",
+      "berth": "—",
+      "price": "€18.50",
+      "duration_min": 285,
+      "duration": "4h45m",
+      "source": "Ferryhopper",
+      "starred": false,
+      "projected": false,
+      "trip_id": "RHO/AOK/2026-11-10T15:30:00Z/00022",
+      "dep_code": "RHO",
+      "arr_code": "AOK",
+      "book_url": "https://www.ferryhopper.com/booking/results?itinerary=RHO,AOK&dates=20261110",
+      "has_vehicles": true,
+      "has_pets": true,
+      "has_cabin": false,
+      "has_eticket": true,
+      "direction": "out",
+      "operator_url": "https://www.bluestarferries.com/",
+      "operator_contact": "+30 210 891 9800",
+      "operator_schedules": "https://www.bluestarferries.com/en/ferry-routes-schedules"
+    },
+    {
+      "date": "2026-11-10",
+      "date_display": "10/11/26",
+      "weekday": "Tuesday",
+      "vessel": "BLUE STAR CHIOS",
+      "mmsi": "",
+      "operator": "BLUE STAR FERRIES",
+      "kind": "ferry",
+      "kind_label": "Ferry (published)",
+      "arrive": "22:15",
+      "depart": "15:30",
+      "origin": "RODOS",
+      "search_origin": "Rhodes",
+      "dest": "KASOS",
+      "via": "—",
+      "berth": "—",
+      "price": "€22.50",
+      "duration_min": 405,
+      "duration": "6h45m",
+      "source": "Ferryhopper",
+      "starred": false,
+      "projected": false,
+      "trip_id": "RHO/KSJ/2026-11-10T15:30:00Z/00022",
+      "dep_code": "RHO",
+      "arr_code": "KSJ",
+      "book_url": "https://www.ferryhopper.com/booking/results?itinerary=RHO,KSJ&dates=20261110",
+      "has_vehicles": true,
+      "has_pets": true,
+      "has_cabin": false,
+      "has_eticket": true,
+      "direction": "out",
+      "operator_url": "https://www.bluestarferries.com/",
+      "operator_contact": "+30 210 891 9800",
+      "operator_schedules": "https://www.bluestarferries.com/en/ferry-routes-schedules"
+    },
+    {
+      "date": "2026-11-10",
+      "date_display": "10/11/26",
+      "weekday": "Tuesday",
+      "vessel": "BLUE STAR 1",
+      "mmsi": "",
+      "operator": "BLUE STAR FERRIES",
+      "kind": "ferry",
+      "kind_label": "Ferry (published)",
+      "arrive": "20:25",
+      "depart": "17:00",
+      "origin": "RODOS",
+      "search_origin": "Rhodes",
+      "dest": "KOS",
+      "via": "—",
+      "berth": "—",
+      "price": "€23.50",
+      "duration_min": 205,
+      "duration": "3h25m",
+      "source": "Ferryhopper",
+      "starred": false,
+      "projected": false,
+      "trip_id": "RHO/KGS/2026-11-10T17:00:00Z/00007",
+      "dep_code": "RHO",
+      "arr_code": "KGS",
+      "book_url": "https://www.ferryhopper.com/booking/results?itinerary=RHO,KGS&dates=20261110",
+      "has_vehicles": true,
+      "has_pets": true,
+      "has_cabin": false,
+      "has_eticket": true,
+      "direction": "out",
+      "operator_url": "https://www.bluestarferries.com/",
+      "operator_contact": "+30 210 891 9800",
+      "operator_schedules": "https://www.bluestarferries.com/en/ferry-routes-schedules"
+    },
+    {
+      "date": "2026-11-10",
+      "date_display": "10/11/26",
+      "weekday": "Tuesday",
+      "vessel": "BLUE STAR 1",
+      "mmsi": "",
+      "operator": "BLUE STAR FERRIES",
+      "kind": "ferry",
+      "kind_label": "Ferry (published)",
+      "arrive": "23:59",
+      "depart": "17:00",
+      "origin": "RODOS",
+      "search_origin": "Rhodes",
+      "dest": "PATMOS",
+      "via": "—",
+      "berth": "—",
+      "price": "€36",
+      "duration_min": 419,
+      "duration": "6h59m",
+      "source": "Ferryhopper",
+      "starred": false,
+      "projected": false,
+      "trip_id": "RHO/PMS/2026-11-10T17:00:00Z/00007",
+      "dep_code": "RHO",
+      "arr_code": "PMS",
+      "book_url": "https://www.ferryhopper.com/booking/results?itinerary=RHO,PMS&dates=20261110",
+      "has_vehicles": true,
+      "has_pets": true,
+      "has_cabin": false,
+      "has_eticket": true,
+      "direction": "out",
+      "operator_url": "https://www.bluestarferries.com/",
+      "operator_contact": "+30 210 891 9800",
+      "operator_schedules": "https://www.bluestarferries.com/en/ferry-routes-schedules"
+    }
+  ],
+  "errors": [
+    "SYMI: Cannot reach Ferryhopper (TLS/certificate). Check network or try again.",
+    "NISYROS: Cannot reach Ferryhopper (TLS/certificate). Check network or try again.",
+    "IKARIA: Leg 2 departs from EYD, but leg 1 arrives at IKA. Each leg must depart from the port the previous leg arrived at — add a leg from IKA to EYD, or correct the port codes.",
+    "THIRA (SANTORINI): Leg 2 departs from TRS, but leg 1 arrives at JTR. Each leg must depart from the port the previous leg arrived at — add a leg from JTR to TRS, or correct the port codes."
+  ],
+  "source": "Ferryhopper MCP",
+  "note": "Published Rhodes departures for 2026-11-10 via Ferryhopper MCP (round-trip pack). 7 sailings across 36 destinations."
+}
