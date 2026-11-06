@@ -160,22 +160,33 @@ function selectedValues(sel) {
   return [...sel.selectedOptions].map((o) => o.value).filter(Boolean);
 }
 
+function itemLabel(it, valueKey, labelFn) {
+  if (labelFn) return labelFn(it).toString();
+  return (typeof it === 'string' ? it : it[valueKey] || '').toString();
+}
+
 function fillSelect(sel, items, { valueKey = 'name', labelFn, selected } = {}) {
   const prev = new Set(selected || selectedValues(sel));
   const sorted = items.slice().sort((a, b) => {
-    const la = (labelFn ? labelFn(a) : typeof a === 'string' ? a : a[valueKey] || '').toString();
-    const lb = (labelFn ? labelFn(b) : typeof b === 'string' ? b : b[valueKey] || '').toString();
-    return la.localeCompare(lb, undefined, { sensitivity: 'base' });
+    const va = typeof a === 'string' ? a : a[valueKey];
+    const vb = typeof b === 'string' ? b : b[valueKey];
+    const aSel = prev.has(va) ? 0 : 1;
+    const bSel = prev.has(vb) ? 0 : 1;
+    if (aSel !== bSel) return aSel - bSel;
+    return itemLabel(a, valueKey, labelFn).localeCompare(itemLabel(b, valueKey, labelFn), undefined, {
+      sensitivity: 'base',
+    });
   });
   sel.innerHTML = sorted
     .map((it) => {
       const v = typeof it === 'string' ? it : it[valueKey];
-      const label = labelFn ? labelFn(it) : v;
+      const label = itemLabel(it, valueKey, labelFn);
       const selAttr = prev.has(v) ? ' selected' : '';
       return `<option value="${escapeAttr(v)}"${selAttr}>${escapeHtml(label)}</option>`;
     })
     .join('');
   refilterList(sel);
+  updateListSelectionUi(sel);
 }
 
 function refilterList(sel) {
@@ -183,6 +194,37 @@ function refilterList(sel) {
   const q = (input?.value || '').trim().toLowerCase();
   for (const opt of sel.options) {
     opt.hidden = !!q && !opt.text.toLowerCase().includes(q);
+  }
+}
+
+function pinSelectedOptions(sel) {
+  const opts = [...sel.options];
+  const selected = opts.filter((o) => o.selected);
+  const rest = opts.filter((o) => !o.selected);
+  rest.sort((a, b) => a.text.localeCompare(b.text, undefined, { sensitivity: 'base' }));
+  selected.sort((a, b) => a.text.localeCompare(b.text, undefined, { sensitivity: 'base' }));
+  for (const o of [...selected, ...rest]) sel.appendChild(o);
+}
+
+function updateListSelectionUi(sel) {
+  if (!sel) return;
+  const n = sel.selectedOptions.length;
+  const countEl = document.getElementById(`${sel.id}-count`);
+  if (countEl) countEl.textContent = n > 0 ? `(${n})` : '';
+  pinSelectedOptions(sel);
+  refilterList(sel);
+  const first = sel.selectedOptions[0];
+  if (first) {
+    try {
+      // Multi-select: keep first selected near the top of the visible list.
+      const idx = [...sel.options].indexOf(first);
+      const optH = first.offsetHeight || 18;
+      sel.scrollTop = Math.max(0, idx * optH);
+    } catch {
+      /* ignore */
+    }
+  } else {
+    sel.scrollTop = 0;
   }
 }
 
@@ -196,6 +238,7 @@ function bindListClear(sel) {
       opt.selected = false;
       opt.hidden = false;
     }
+    updateListSelectionUi(sel);
     sel.dispatchEvent(new Event('change'));
   });
 }
@@ -1540,6 +1583,7 @@ function applyStaticUi() {
     el.hidden = true;
   }
   document.getElementById('fh-skip')?.closest('label')?.setAttribute('hidden', '');
+  document.getElementById('fh-cache-menu')?.setAttribute('hidden', '');
   document.getElementById('loc-list')?.closest('details')?.setAttribute('hidden', '');
   document.getElementById('loc-list')?.parentElement?.setAttribute('hidden', '');
 }
@@ -3098,18 +3142,22 @@ document.getElementById('fh-local-open')?.addEventListener('click', () => {
 });
 
 originsEl.addEventListener('change', async () => {
+  updateListSelectionUi(originsEl);
   await loadConnections();
   await savePrefs();
 });
 destsEl.addEventListener('change', () => {
+  updateListSelectionUi(destsEl);
   savePrefs();
   render();
 });
 vesselsEl.addEventListener('change', () => {
+  updateListSelectionUi(vesselsEl);
   savePrefs();
   render();
 });
 companiesEl?.addEventListener('change', () => {
+  updateListSelectionUi(companiesEl);
   render();
 });
 directionEl.addEventListener('change', () => {
@@ -3184,6 +3232,7 @@ function enableDragScroll(el, { axes = 'x' } = {}) {
   el.classList.add('fh-drag-scroll');
   const ax = axes === 'xy' || axes === 'both' ? 'xy' : axes === 'y' ? 'y' : 'x';
   let down = false;
+  let activeId = null;
   let startX = 0;
   let startY = 0;
   let startLeft = 0;
@@ -3191,20 +3240,43 @@ function enableDragScroll(el, { axes = 'x' } = {}) {
   let startWinY = 0;
   let moved = false;
   const canY = () => el.scrollHeight > el.clientHeight + 1;
+  const end = (ev) => {
+    if (!down) return;
+    if (ev && activeId != null && ev.pointerId != null && ev.pointerId !== activeId) return;
+    down = false;
+    const pid = activeId;
+    activeId = null;
+    el.classList.remove('is-dragging');
+    document.body.classList.remove('fh-is-dragging');
+    if (pid != null) {
+      try {
+        if (el.hasPointerCapture?.(pid)) el.releasePointerCapture(pid);
+      } catch {
+        /* ignore */
+      }
+    }
+  };
   el.addEventListener('pointerdown', (ev) => {
     if (ev.button != null && ev.button !== 0) return;
     if (ev.target.closest('a, button, input, select, textarea, label, summary, [data-pick], .fh-det, .fh-links')) return;
+    // Innermost bound target owns the gesture (nested board/main/week).
+    ev.stopPropagation();
     down = true;
     moved = false;
+    activeId = ev.pointerId;
     startX = ev.clientX;
     startY = ev.clientY;
     startLeft = el.scrollLeft;
     startTop = el.scrollTop;
     startWinY = window.scrollY;
-    el.setPointerCapture?.(ev.pointerId);
+    try {
+      el.setPointerCapture?.(ev.pointerId);
+    } catch {
+      /* ignore */
+    }
   });
   el.addEventListener('pointermove', (ev) => {
-    if (!down) return;
+    if (!down || (activeId != null && ev.pointerId !== activeId)) return;
     const dx = ev.clientX - startX;
     const dy = ev.clientY - startY;
     if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
@@ -3219,14 +3291,10 @@ function enableDragScroll(el, { axes = 'x' } = {}) {
       else window.scrollTo(0, startWinY - dy);
     }
   });
-  const end = () => {
-    if (!down) return;
-    down = false;
-    el.classList.remove('is-dragging');
-    document.body.classList.remove('fh-is-dragging');
-  };
-  el.addEventListener('pointerup', end);
-  el.addEventListener('pointercancel', end);
+  // Document-level end: nested capture otherwise leaves parent `down` stuck.
+  document.addEventListener('pointerup', end);
+  document.addEventListener('pointercancel', end);
+  el.addEventListener('lostpointercapture', end);
   el.addEventListener(
     'click',
     (ev) => {

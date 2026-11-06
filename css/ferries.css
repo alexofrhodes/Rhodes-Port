@@ -296,6 +296,16 @@ body.fh-is-dragging {
   min-width: 0;
 }
 
+.fh-sel-count {
+  font-weight: 700;
+  color: var(--sea-mid, #146377);
+  margin-left: 0.15rem;
+}
+
+.fh-sel-count:empty {
+  display: none;
+}
+
 .fh-filter-field select {
   width: 100%;
   min-width: 0;

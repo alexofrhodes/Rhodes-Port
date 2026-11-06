@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0a3d4a" />
     <title>Ferryhopper planner — Rhodes Port Tracker</title>
     <link rel="stylesheet" href="./css/styles.css" />
-    <link rel="stylesheet" href="./css/ferries.css?v=9" />
+    <link rel="stylesheet" href="./css/ferries.css?v=10" />
   </head>
   <body class="fh-page fh-sidebar-left">
     <div class="atmosphere" aria-hidden="true"></div>
@@ -212,28 +212,28 @@
           </section>
 
           <section class="fh-filter-sec">
-            <label class="fh-filter-field">Hub
+            <label class="fh-filter-field">Hub <span id="fh-origins-count" class="fh-sel-count" aria-live="polite"></span>
               <span class="search-wrap fh-list-q">
                 <input type="search" id="fh-origins-q" placeholder="Filter hub…" autocomplete="off" />
                 <button type="button" id="fh-origins-x" class="q-clear always" aria-label="Clear hub">×</button>
               </span>
               <select id="fh-origins" multiple size="5"></select>
             </label>
-            <label class="fh-filter-field">Other ports
+            <label class="fh-filter-field">Other ports <span id="fh-dests-count" class="fh-sel-count" aria-live="polite"></span>
               <span class="search-wrap fh-list-q">
                 <input type="search" id="fh-dests-q" placeholder="Filter ports…" autocomplete="off" />
                 <button type="button" id="fh-dests-x" class="q-clear always" aria-label="Clear ports">×</button>
               </span>
               <select id="fh-dests" multiple size="5"></select>
             </label>
-            <label class="fh-filter-field">Vessels
+            <label class="fh-filter-field">Vessels <span id="fh-vessels-count" class="fh-sel-count" aria-live="polite"></span>
               <span class="search-wrap fh-list-q">
                 <input type="search" id="fh-vessels-q" placeholder="Filter vessels…" autocomplete="off" />
                 <button type="button" id="fh-vessels-x" class="q-clear always" aria-label="Clear vessels">×</button>
               </span>
               <select id="fh-vessels" multiple size="5"></select>
             </label>
-            <label class="fh-filter-field">Company
+            <label class="fh-filter-field">Company <span id="fh-companies-count" class="fh-sel-count" aria-live="polite"></span>
               <span class="search-wrap fh-list-q">
                 <input type="search" id="fh-companies-q" placeholder="Filter companies…" autocomplete="off" />
                 <button type="button" id="fh-companies-x" class="q-clear always" aria-label="Clear companies">×</button>
@@ -330,6 +330,6 @@
     </dialog>
 
     <script type="module" src="./js/nav.js"></script>
-    <script type="module" src="./js/ferries.js?v=9"></script>
+    <script type="module" src="./js/ferries.js?v=10"></script>
   </body>
 </html>
