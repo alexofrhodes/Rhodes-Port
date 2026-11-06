@@ -30,7 +30,7 @@
 
 .fh-strip-a {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.35rem 0.6rem;
@@ -38,11 +38,17 @@
   top: 0;
   z-index: 21;
   background: inherit;
+  width: 100%;
 }
 
 .fh-strip-a .brand-block {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.fh-top.top {
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .fh-strip-a .brand-block h1 {
