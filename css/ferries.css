@@ -163,6 +163,64 @@ body.fh-is-dragging {
 .fh-ctrl-actions {
   padding-top: 0.15rem;
   border-top: 1px solid rgba(232, 244, 242, 0.12);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.35rem 0.55rem;
+}
+
+.fh-quick {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  align-items: center;
+}
+
+.fh-quick .ghost {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+}
+
+.fh-range-hint {
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.fh-date-end-wrap {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: flex-end;
+}
+
+.fh-date-end-wrap[hidden] {
+  display: none !important;
+}
+
+.fh-fetch-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.45rem;
+  align-items: flex-end;
+}
+
+.fh-fetch-range label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--foam);
+}
+
+.fh-fetch-range input[type='date'] {
+  font: inherit;
+  font-weight: 400;
+  padding: 0.15rem 0.2rem;
+  border: 1px solid rgba(232, 244, 242, 0.35);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--foam);
+  max-width: 8.25rem;
 }
 
 .fh-check {
@@ -923,9 +981,11 @@ tr.fh-pickable:hover {
     position: relative;
     align-self: stretch;
     z-index: 15;
+    overscroll-behavior: contain; /* don't chain wheel to board */
   }
   .fh-main {
     flex: 1 1 auto;
+    overflow: visible; /* sticky heads use .fh-board as scrollport */
   }
   .fh-board {
     min-width: 0;
@@ -934,6 +994,7 @@ tr.fh-pickable:hover {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     cursor: grab;
+    overscroll-behavior: contain;
   }
   body.fh-is-dragging .fh-board {
     cursor: grabbing;
@@ -1228,11 +1289,6 @@ tr.fh-pickable:hover {
   font-size: 0.85rem;
   font-weight: 700;
   color: #44555c;
-  position: sticky;
-  top: 1.75rem;
-  z-index: 1;
-  background: #f8faf9;
-  padding: 0.15rem 0;
 }
 
 .fh-sec-row td {
@@ -1376,18 +1432,33 @@ tr.fh-pickable:hover {
 .fh-agenda {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.15rem;
 }
 
-.fh-day-head {
-  margin: 0.6rem 0 0.25rem;
+/* Sticky relative to .fh-board scrollport (not the window). */
+.fh-board .fh-day-head {
+  margin: 0.35rem 0 0.15rem;
   font-family: var(--font-display);
   font-size: 1rem;
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 3;
   background: #f8faf9;
-  padding: 0.2rem 0;
+  padding: 0.25rem 0.15rem;
+  border-bottom: 1px solid var(--line, #d5e0dd);
+}
+
+.fh-board .fh-day-sub {
+  position: sticky;
+  top: var(--fh-day-head-h, 1.65rem);
+  z-index: 2;
+  margin: 0.35rem 0 0.2rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--sea-mid, #146377);
+  background: #eef3f2;
+  padding: 0.15rem 0.2rem;
+  border-radius: 3px;
 }
 
 .fh-card {
@@ -1415,12 +1486,6 @@ tr.fh-pickable:hover {
 
 .fh-card-body {
   margin-bottom: 0.15rem;
-}
-
-.fh-agenda {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
 }
 
 .fh-week {
@@ -1680,6 +1745,7 @@ body.fh-static .fh-strip-d {
   padding: 0.35rem 0.2rem;
   position: sticky;
   left: 0;
+  top: var(--fh-week-head-h, 2rem); /* under day header band while scrolling */
   z-index: 2;
   display: flex;
   align-items: center;
@@ -1729,18 +1795,6 @@ body.fh-static .fh-strip-d {
   flex-wrap: wrap;
   gap: 0.45rem;
   align-items: flex-start;
-}
-
-.fh-vessels-den-roomy .fh-vessel-block {
-  margin: 0 0 0.55rem;
-}
-
-.fh-vessels-den-normal .fh-vessel-block {
-  margin: 0 0 0.35rem;
-}
-
-.fh-vessels-den-tight .fh-vessel-block {
-  margin: 0 0 0.15rem;
 }
 
 .fh-agenda-day {
@@ -1903,25 +1957,51 @@ body.fh-static .fh-strip-d {
 }
 
 @media print {
+  @page {
+    size: A4;
+    margin: 0.8cm;
+  }
+  @page landscape {
+    size: A4 landscape;
+    margin: 0.5cm;
+  }
+  body.fh-print-landscape {
+    page: landscape;
+  }
+
   .atmosphere,
   .fh-top .controls,
   .no-print,
   .fh-filters,
   .fh-trip-fold,
+  .fh-trip-dock,
   .fh-table-search,
   .fh-back,
   .fh-disrupt-btn,
-  .app-nav {
+  .app-nav,
+  .fh-pick-btn,
+  .fh-pick-row,
+  .fh-pick-th,
+  .fh-pick-td {
     display: none !important;
   }
   .app-shell,
   .app-stage,
   .fh-board,
   .fh-main,
-  .fh-layout {
+  .fh-layout,
+  .fh-agenda,
+  html,
+  body {
     overflow: visible !important;
     max-height: none !important;
     height: auto !important;
+  }
+  .app-shell,
+  .app-stage,
+  .fh-board,
+  .fh-main,
+  .fh-layout {
     display: block !important;
   }
   body.fh-page {
@@ -1947,138 +2027,201 @@ body.fh-static .fh-strip-d {
   .top h1,
   .fh-top h1 {
     color: #000;
-    font-size: 14pt;
+    font-size: 12pt;
   }
-  /* Day/agenda: office tables for print; hide mobile cards */
+  /* Agenda: office tables for print; hide mobile cards */
   .fh-day-cards {
     display: none !important;
   }
   .fh-day-table {
     display: table !important;
     width: 100% !important;
-    font-size: 9pt;
+    font-size: 8.5pt;
   }
   .fh-day-table th,
   .fh-day-table td {
     border: 1px solid #bbb;
-    padding: 2px 5px;
+    padding: 2px 4px;
+  }
+  .fh-day-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
   .fh-vessel-day-dual {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
   }
-  /* Print = on-screen layout; only expand clipped overflow. */
   .fh-card,
   .fh-leg-card {
     border: 1px solid #bbb;
     background: #fff !important;
-    padding: 0.4rem 0.5rem;
-    margin: 0 0 0.45rem;
+    padding: 0.3rem 0.4rem;
+    margin: 0 0 0.35rem;
     break-inside: avoid;
+    page-break-inside: avoid;
   }
   .fh-card-title {
-    font-size: 10pt;
+    font-size: 9pt;
     color: #000;
   }
   .fh-route,
   .fh-week-dests {
-    font-size: 9pt;
+    font-size: 7.5pt;
     color: #222;
   }
   .fh-links {
-    gap: 0.45rem 0.9rem;
+    gap: 0.35rem 0.7rem;
     border-top-color: #ccc;
   }
   .fh-links a {
     color: #000;
     text-decoration: underline;
   }
+  /* Sticky off for print — static headers on the page */
+  .fh-board .fh-day-head,
+  .fh-board .fh-day-sub,
+  .fh-week-rows-h,
+  .fh-week-rows-lab,
+  .fh-week-vdual-h,
+  .fh-week-vdual-lab {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+  }
+  /* Agenda: one calendar day per A4 sheet; dates never orphan alone */
+  .fh-agenda-day {
+    page-break-before: always;
+    break-before: page;
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  .fh-agenda-day:first-of-type {
+    page-break-before: auto;
+    break-before: auto;
+  }
+  .fh-agenda-day .fh-day-head,
+  .fh-agenda-day .fh-day-sub {
+    break-after: avoid;
+    page-break-after: avoid;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* Vessels stack: one calendar day per A4 sheet; keep day together */
+  .fh-vessel-day {
+    page-break-before: always;
+    break-before: page;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .fh-vessel-day:first-of-type {
+    page-break-before: auto;
+    break-before: auto;
+  }
+  .fh-vessel-day .fh-day-head {
+    break-after: avoid;
+    page-break-after: avoid;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .fh-vessel-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* Stack fit: denser cards/tables so a day prefers one sheet */
+  .fh-vessels-view:not(.fh-vessels-week-mode) .fh-vessel-day-cards {
+    gap: 0.25rem;
+  }
+  .fh-vessels-view:not(.fh-vessels-week-mode) .fh-vessel-block {
+    margin: 0 0 0.25rem;
+  }
+  .fh-vessels-view:not(.fh-vessels-week-mode) .fh-vessel-head {
+    margin: 0.25rem 0 0.1rem;
+  }
+  .fh-vessels-view:not(.fh-vessels-week-mode) .fh-vessel-head h4 {
+    font-size: 9pt;
+  }
+  .fh-vessels-view:not(.fh-vessels-week-mode) .fh-vessel-table {
+    font-size: 7.5pt;
+    margin: 0.1rem 0 0.2rem;
+  }
+  .fh-vessels-view:not(.fh-vessels-week-mode) .fh-vessel-table th,
+  .fh-vessels-view:not(.fh-vessels-week-mode) .fh-vessel-table td {
+    padding: 1px 3px;
+  }
   .fh-week {
     display: grid !important;
     grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
     width: 100% !important;
-    gap: 0.2rem;
+    gap: 0.12rem;
+    break-inside: auto;
+    font-size: 7pt;
+  }
+  .fh-week-dual-mode,
+  .fh-week-rows,
+  .fh-week-vdual {
+    break-inside: auto;
+    font-size: 7pt;
   }
   .fh-week-col {
     display: block !important;
     min-height: 0 !important;
     max-width: none !important;
-    break-inside: avoid;
+    break-inside: auto;
   }
-  .fh-week-col-body {
+  .fh-week-col-body,
+  .fh-week-dual .fh-week-col-body {
     max-height: none !important;
     overflow: visible !important;
   }
   .fh-week-item {
-    padding: 0.25rem 0;
+    padding: 0.15rem 0;
     border-top: 1px solid #ddd;
-  }
-  .fh-month {
-    display: grid !important;
-    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
-  }
-  .fh-month-cell {
-    overflow: visible !important;
-    max-height: none !important;
-    min-height: 3rem !important;
     break-inside: avoid;
-  }
-  .fh-month-head {
-    display: block !important;
-  }
-  /* Agenda / vessels stack: continuous like on-screen (no forced page per day) */
-  .fh-agenda-day,
-  .fh-agenda > .fh-day-sub,
-  .fh-vessel-day {
-    page-break-before: auto;
-    break-before: auto;
-    break-inside: avoid;
-  }
-  .fh-week,
-  .fh-week-dual-mode {
-    break-inside: avoid;
+    page-break-inside: avoid;
   }
   .fh-week-dual {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
   }
-  .fh-week-dual .fh-week-col-body {
-    max-height: none !important;
-    overflow: visible !important;
+  .fh-month {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    font-size: 7pt;
+    break-inside: auto;
   }
-  /* Vessels week: one Mon–Sun grid per page; landscape helps fit */
+  .fh-month-cell {
+    overflow: visible !important;
+    max-height: none !important;
+    min-height: 2.2rem !important;
+    break-inside: auto;
+  }
+  .fh-month-head {
+    display: block !important;
+  }
+  /* Vessels week: new sheet per vessel; allow grid to paginate */
   .fh-vessels-week-mode {
-    break-inside: avoid;
+    break-inside: auto;
   }
   .fh-vessel-week {
     page-break-before: always;
     break-before: page;
-    break-inside: avoid;
+    break-inside: auto;
   }
   .fh-vessel-week:first-of-type {
     page-break-before: auto;
     break-before: auto;
   }
-  @page fh-week-landscape {
-    size: A4 landscape;
-    margin: 0.4cm;
-  }
-  .fh-vessels-week-mode,
-  .fh-week,
-  body.fh-print-landscape {
-    page: fh-week-landscape;
-  }
   .fh-vessel-week-grid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 0.15rem;
+    gap: 0.12rem;
     align-items: start;
-    break-inside: avoid;
+    break-inside: auto;
   }
   .fh-vessel-week-col {
     min-width: 0;
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
   }
   .fh-vessels-week-mode .fh-vessel-table {
     width: 100% !important;

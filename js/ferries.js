@@ -5,10 +5,11 @@ import {
   loadDataJson,
   loadStaticSailings,
   originSlug,
+  probeManagerApi,
 } from './api.js';
 
 const state = {
-  view: 'day',
+  view: 'agenda',
   ports: [],
   dests: [],
   sailings: [],
@@ -27,7 +28,6 @@ const state = {
   agendaGroup: 'day', // day | direction
   weekLegOrder: 'out_in', // out_in | by_time
   weekSplit: 'dual', // dual | rows
-  vesselsDensity: 'normal', // roomy | normal | tight
   showTripPicker: false,
   /** Next Pick button goes to this slot when set ('out' | 'in'). */
   pickArm: null,
@@ -79,6 +79,8 @@ const vesselsEl = document.getElementById('fh-vessels');
 const companiesEl = document.getElementById('fh-companies');
 const dateEl = document.getElementById('fh-date');
 const dateEndEl = document.getElementById('fh-date-end');
+const fetchFromEl = document.getElementById('fh-fetch-from');
+const fetchToEl = document.getElementById('fh-fetch-to');
 const directionEl = document.getElementById('fh-direction');
 const disruptBtn = document.getElementById('fh-disrupt-btn');
 const disruptCountEl = document.getElementById('fh-disrupt-count');
@@ -906,11 +908,7 @@ function vesselWeeksFromRows(rows) {
 function renderVessels(rows) {
   if (!rows.length) return '<p class="muted">No sailings.</p>';
   const autofit = state.vesselsAutofit !== false;
-  const dens =
-    state.vesselsDensity === 'roomy' || state.vesselsDensity === 'tight'
-      ? state.vesselsDensity
-      : 'normal';
-  const wrapClass = `fh-vessels-view fh-vessels-den-${dens}${autofit ? ' fh-vessels-autofit' : ' fh-vessels-stretch'}`;
+  const wrapClass = `fh-vessels-view${autofit ? ' fh-vessels-autofit' : ' fh-vessels-stretch'}`;
   if (state.vesselsLayout === 'week') {
     const weeks = vesselWeeksFromRows(rows);
     if (!weeks.length) return '<p class="muted">No sailings.</p>';
@@ -965,10 +963,121 @@ function setFetchUi(running) {
   }
 }
 
+function normalizeView(view) {
+  const v = String(view || 'agenda').toLowerCase();
+  if (v === 'day') return 'agenda';
+  if (v === 'week' || v === 'month' || v === 'vessels' || v === 'agenda') return v;
+  return 'agenda';
+}
+
 function setView(view) {
-  state.view = view || 'day';
+  state.view = normalizeView(view);
   document.querySelectorAll('[data-view]').forEach((b) => b.classList.toggle('active', b.dataset.view === state.view));
   applySmartDisplay();
+  syncEndVisibility();
+  updateRangeHint();
+}
+
+/** User-owned focus day (#fh-date). Views derive ranges; never rewrite this to Mon/1st. */
+function focusDate() {
+  let a = (dateEl.value || todayISO()).trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(a)) a = todayISO();
+  return a;
+}
+
+function endDateRaw() {
+  let e = (dateEndEl.value || '').trim();
+  if (e && !/^\d{4}-\d{2}-\d{2}$/.test(e)) e = '';
+  return e;
+}
+
+/** True if End looks like a view-derived week/month span of focus (safe to clear). */
+function endIsDerivedSpan(focus, end) {
+  if (!end || end === focus) return true;
+  const mon = weekStartISO(focus);
+  const sun = addDaysISO(mon, 6);
+  const m1 = `${focus.slice(0, 8)}01`;
+  const mLast = monthEndISO(focus);
+  return end === sun || end === mLast || (focus === mon && end === sun) || (focus === m1 && end === mLast);
+}
+
+/**
+ * Board load/render range from stable focus + view.
+ * Week/Month ignore End. Agenda/Vessels use focus→End (empty End ⇒ single day).
+ */
+function effectiveBoardRange(view = state.view) {
+  const v = normalizeView(view);
+  const focus = focusDate();
+  const endRaw = endDateRaw();
+
+  if (v === 'week') {
+    const from = weekStartISO(focus);
+    return { from, to: addDaysISO(from, 6), focus };
+  }
+  if (v === 'month') {
+    const from = `${focus.slice(0, 8)}01`;
+    return { from, to: monthEndISO(from), focus };
+  }
+  let from = focus;
+  let to = endRaw || from;
+  if (to < from) to = from;
+  return { from, to, focus };
+}
+
+function syncEndVisibility() {
+  const wrap = document.getElementById('fh-date-end-wrap');
+  if (!wrap) return;
+  const show = state.view === 'agenda' || state.view === 'vessels';
+  wrap.hidden = !show;
+}
+
+function updateRangeHint() {
+  const el = document.getElementById('fh-range-hint');
+  if (!el) return;
+  const v = normalizeView(state.view);
+  const { from, to, focus } = effectiveBoardRange();
+  if (v === 'week') {
+    el.textContent = `Showing ${from} → ${to} (week of ${focus})`;
+  } else if (v === 'month') {
+    el.textContent = `Showing ${from.slice(0, 7)} (${focus})`;
+  } else if (from === to) {
+    el.textContent = `Showing ${from}`;
+  } else {
+    el.textContent = `Showing ${from} → ${to}`;
+  }
+}
+
+/** Fetch/Clear range — independent of board When. */
+function fetchRangeParams() {
+  let from = (fetchFromEl?.value || dateEl.value || todayISO()).trim();
+  let to = (fetchToEl?.value || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from)) from = todayISO();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(to)) to = from;
+  if (to < from) to = from;
+  return { from, to };
+}
+
+function ensureFetchDatesDefaulted() {
+  if (!fetchFromEl) return;
+  if (!fetchFromEl.value) fetchFromEl.value = dateEl.value || todayISO();
+  if (fetchToEl && !fetchToEl.value) fetchToEl.value = dateEndEl.value || fetchFromEl.value;
+}
+
+function daysFromToday(iso) {
+  return Math.abs(daysBetween(todayISO(), iso));
+}
+
+/** If saved board anchor is stale, snap to today (keeps Fetch prefs). */
+function guardStaleAnchor() {
+  const a = (dateEl.value || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(a)) {
+    dateEl.value = todayISO();
+    return;
+  }
+  if (daysFromToday(a) > 45) {
+    dateEl.value = todayISO();
+    if (state.view === 'agenda' || state.view === 'vessels') dateEndEl.value = '';
+  }
 }
 
 function syncSegGroup(attr, value) {
@@ -1015,11 +1124,11 @@ ${escapeHtml(r.origin || '—')} → ${escapeHtml(r.dest || '—')}</p>`;
 }
 
 function applySmartDisplay() {
-  const v = state.view || 'day';
+  const v = normalizeView(state.view);
   const smart = state.smartDisplay !== false;
   const show = {
     smart: true,
-    group: !smart || ['day', 'agenda', 'week', 'month'].includes(v),
+    group: !smart || ['agenda', 'week', 'month'].includes(v),
     font: true,
     fields: !smart || v === 'week' || v === 'month',
     agenda: !smart || v === 'agenda',
@@ -1037,25 +1146,49 @@ function applySmartDisplay() {
   });
 }
 
-/** Adjust date range for view; quiet cache reload if range grew. */
+/**
+ * Switch view. Never rewrite Date (focus).
+ * Week/Month→Agenda: clear derived End. Week/Month→Vessels: set End to that span.
+ */
 function applyViewOnly(view) {
-  const prevTo = dateEndEl.value;
-  setView(view);
-  const from = dateEl.value || todayISO();
-  if (view === 'week') {
-    const start = weekStartISO(from);
-    dateEl.value = start;
-    dateEndEl.value = addDaysISO(start, 6);
-  } else if (view === 'month') {
-    const start = `${from.slice(0, 8)}01`;
-    dateEl.value = start;
-    dateEndEl.value = monthEndISO(start);
+  const prev = effectiveBoardRange();
+  const next = normalizeView(view);
+  const prevView = normalizeView(state.view);
+  const focus = focusDate();
+
+  if (next === 'agenda' && (prevView === 'week' || prevView === 'month')) {
+    if (endIsDerivedSpan(focus, endDateRaw())) dateEndEl.value = '';
+  } else if (next === 'vessels' && prevView === 'week') {
+    dateEndEl.value = addDaysISO(weekStartISO(focus), 6);
+  } else if (next === 'vessels' && prevView === 'month') {
+    dateEndEl.value = monthEndISO(focus);
   }
-  if (dateEndEl.value && dateEndEl.value !== prevTo) {
+  // → Week / → Month: keep focus + End as-is (End hidden; ignored by effectiveBoardRange)
+
+  setView(next);
+  const cur = effectiveBoardRange();
+  if (cur.from !== prev.from || cur.to !== prev.to) {
     loadSailings({ quiet: true });
   } else {
     render();
+    updateRangeHint();
   }
+}
+
+function goToday() {
+  dateEl.value = todayISO();
+  const v = normalizeView(state.view);
+  if (v === 'agenda' || v === 'vessels') dateEndEl.value = '';
+  // Week/Month: keep End whatever; range is derived from focus=today
+  loadSailings();
+}
+
+function goThisWeek() {
+  const t = todayISO();
+  dateEl.value = t; // focus stays today, not Monday
+  dateEndEl.value = addDaysISO(weekStartISO(t), 6);
+  setView('agenda');
+  loadSailings();
 }
 
 const PORT_ALIAS = {
@@ -1166,10 +1299,6 @@ async function loadPorts() {
   if (groupEl) groupEl.checked = state.groupVoyages;
   state.vesselsLayout = prefs.vessels_layout === 'week' ? 'week' : 'stack';
   state.vesselsAutofit = prefs.vessels_autofit !== false;
-  state.vesselsDensity =
-    prefs.vessels_density === 'roomy' || prefs.vessels_density === 'tight'
-      ? prefs.vessels_density
-      : 'normal';
   state.smartDisplay = prefs.smart_display !== false;
   state.boardFit = prefs.board_fit === 'shrink' ? 'shrink' : 'scroll';
   state.agendaGroup = prefs.agenda_group === 'direction' ? 'direction' : 'day';
@@ -1182,17 +1311,26 @@ async function loadPorts() {
   else if (!dateEl.value) dateEl.value = todayISO();
   if (/^\d{4}-\d{2}-\d{2}$/.test(toPref)) dateEndEl.value = toPref;
   else if (toPref === '') {
-    /* keep empty To = view-derived range */
+    /* keep empty To = single-day / view-derived */
+  }
+  setView(prefs.view || state.view || 'agenda');
+  guardStaleAnchor();
+  // Date = focus only; do not rewrite to week Mon / month 1st
+  const fetchFromPref = String(prefs.fetch_from || '').trim();
+  const fetchToPref = String(prefs.fetch_to || '').trim();
+  if (fetchFromEl) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(fetchFromPref)) fetchFromEl.value = fetchFromPref;
+    else if (!fetchFromEl.value) fetchFromEl.value = dateEl.value || todayISO();
+  }
+  if (fetchToEl) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(fetchToPref)) fetchToEl.value = fetchToPref;
+    else if (!fetchToEl.value) fetchToEl.value = dateEndEl.value || fetchFromEl?.value || todayISO();
   }
   const vaEl = document.getElementById('fh-vessels-autofit');
   if (vaEl) vaEl.checked = state.vesselsAutofit;
   const sdEl = document.getElementById('fh-smart-display');
   if (sdEl) sdEl.checked = state.smartDisplay;
   syncSegGroup('data-vessels-layout', state.vesselsLayout === 'week' ? 'week' : 'stack');
-  syncSegGroup(
-    'data-vessels-density',
-    state.vesselsDensity === 'roomy' || state.vesselsDensity === 'tight' ? state.vesselsDensity : 'normal',
-  );
   syncSegGroup('data-agenda-group', state.agendaGroup === 'direction' ? 'direction' : 'day');
   syncSegGroup('data-week-leg-order', state.weekLegOrder === 'by_time' ? 'by_time' : 'out_in');
   syncSegGroup('data-week-split', state.weekSplit === 'rows' ? 'rows' : 'dual');
@@ -1383,18 +1521,7 @@ function rangeParams() {
   const originList = selectedValues(originsEl);
   const origins = originList.join(',') || 'Rhodes';
   const dests = selectedValues(destsEl).join(',');
-  let from = dateEl.value || todayISO();
-  let to = dateEndEl.value || '';
-  // Week always loads Mon–Sun of the selected week (not mid-week → +6).
-  if (state.view === 'week') {
-    from = weekStartISO(from);
-    to = addDaysISO(from, 6);
-  } else if (state.view === 'month') {
-    from = `${from.slice(0, 8)}01`;
-    to = monthEndISO(from);
-  } else if (!to) {
-    to = from;
-  }
+  const { from, to } = effectiveBoardRange();
   const direction = 'both';
   state.direction = direction;
   const q = new URLSearchParams({ origins, from, direction });
@@ -1404,9 +1531,9 @@ function rangeParams() {
 }
 
 function originDayUnits() {
-  const { from, to, originList, direction } = rangeParams();
-  const end = to || from;
-  const n = daysBetween(from, end) + 1;
+  const { originList, direction } = rangeParams();
+  const { from, to } = fetchRangeParams();
+  const n = daysBetween(from, to) + 1;
   // One unit per origin-day; direction "both" stays both (leave+return in one server call).
   const dir = direction === 'in' ? 'in' : direction === 'out' ? 'out' : 'both';
   const units = [];
@@ -1475,6 +1602,7 @@ async function loadSailings({ signal, quiet = false } = {}) {
     );
     if (!quiet) await loadDisruptions(from);
     render();
+    updateRangeHint();
     if (!quiet) {
       await savePrefs();
       if (!isStaticHost()) {
@@ -1581,11 +1709,11 @@ async function runSequentialFetch() {
 }
 
 async function clearCacheSlice() {
-  const { from, to, originList, direction } = rangeParams();
-  const end = to || from;
+  const { originList, direction } = rangeParams();
+  const { from, to } = fetchRangeParams();
   if (
     !confirm(
-      `Clear Ferryhopper day cache for ${originList.join(', ')} (+Kamiros if Rhodes)\n${from} → ${end}\nShow=${direction}?`,
+      `Clear Ferryhopper day cache for ${originList.join(', ')} (+Kamiros if Rhodes)\n${from} → ${to}\nShow=${direction}?`,
     )
   ) {
     return;
@@ -1597,7 +1725,7 @@ async function clearCacheSlice() {
       body: JSON.stringify({
         origins: originList,
         from,
-        to: end,
+        to,
         direction,
       }),
     });
@@ -1619,10 +1747,6 @@ async function savePrefs() {
     group_voyages: state.groupVoyages,
     vessels_layout: state.vesselsLayout || 'stack',
     vessels_autofit: state.vesselsAutofit !== false,
-    vessels_density:
-      state.vesselsDensity === 'roomy' || state.vesselsDensity === 'tight'
-        ? state.vesselsDensity
-        : 'normal',
     smart_display: state.smartDisplay !== false,
     board_fit: state.boardFit === 'shrink' ? 'shrink' : 'scroll',
     agenda_group: state.agendaGroup === 'direction' ? 'direction' : 'day',
@@ -1631,8 +1755,14 @@ async function savePrefs() {
     show_trip_picker: state.showTripPicker !== false,
     sidebar: state.sidebar || 'left',
     export_formats: state.exportFormats || savedExportFormats(),
-    board_from: dateEl.value || todayISO(),
-    board_to: dateEndEl.value || '',
+    board_from: focusDate(),
+    board_to:
+      normalizeView(state.view) === 'agenda' || normalizeView(state.view) === 'vessels'
+        ? endDateRaw()
+        : '',
+    fetch_from: fetchFromEl?.value || '',
+    fetch_to: fetchToEl?.value || '',
+    view: normalizeView(state.view),
   };
   localStorage.setItem('fh_prefs', JSON.stringify(body));
   if (isStaticHost()) return;
@@ -1647,8 +1777,9 @@ async function savePrefs() {
   }
 }
 
-function applyStaticUi(force = false) {
-  if (!force && !isStaticHost()) return;
+/** Hide Fetch/Clear/local when not talking to the manager API. */
+function applyStaticUi(asStatic = false) {
+  if (!asStatic) return;
   document.body.classList.add('fh-static');
   for (const id of [
     'fh-fetch',
@@ -1665,6 +1796,7 @@ function applyStaticUi(force = false) {
     el.hidden = true;
   }
   document.getElementById('fh-skip')?.closest('label')?.setAttribute('hidden', '');
+  document.querySelector('.fh-fetch-range')?.setAttribute('hidden', '');
   document.getElementById('fh-cache-menu')?.setAttribute('hidden', '');
   document.getElementById('loc-list')?.closest('details')?.setAttribute('hidden', '');
   document.getElementById('loc-list')?.parentElement?.setAttribute('hidden', '');
@@ -2012,7 +2144,7 @@ function renderTripSide() {
   const dock = document.getElementById('fh-trip-dock');
   const bar = document.getElementById('fh-trip-bar');
   const toggle = document.getElementById('fh-trip-toggle');
-  const dockOn = ['day', 'agenda', 'week', 'vessels'].includes(state.view || 'day');
+  const dockOn = ['agenda', 'week', 'vessels'].includes(normalizeView(state.view));
   const open = dockOn && !!state.showTripPicker;
   if (dock) dock.hidden = !dockOn;
   if (bar) bar.hidden = !open;
@@ -2388,11 +2520,11 @@ function renderAgenda(rows) {
       const sample = dayRows[0];
       html += `<section class="fh-agenda-day"><h3 class="fh-day-head">${escapeHtml(sample?.date_display || day)} · ${escapeHtml(sample?.weekday || '')}</h3>`;
       if (leaving.length) {
-        html += `<h4 class="fh-day-sub">Leaving ${escapeHtml(hubs.join(', '))} · ${leaving.length}</h4>`;
+        html += `<h4 class="fh-day-sub fh-day-sub-out">Out · ${leaving.length}</h4>`;
         html += renderAgendaBucketBody(leaving);
       }
       if (returning.length) {
-        html += `<h4 class="fh-day-sub">Returning to ${escapeHtml(hubs.join(', '))} · ${returning.length}</h4>`;
+        html += `<h4 class="fh-day-sub fh-day-sub-in">In · ${returning.length}</h4>`;
         html += renderAgendaBucketBody(returning);
       }
       if (!leaving.length && !returning.length) {
@@ -2493,7 +2625,7 @@ function weekItemsHtml(ordered) {
 
 function renderWeek(rows) {
   // Always Mon–Sun of the selected week so columns match the loaded cache.
-  const from = weekStartISO(dateEl.value || todayISO());
+  const from = effectiveBoardRange('week').from;
   const start = new Date(from + 'T12:00:00');
   const hubs = hubNames();
   const showDir = 'both';
@@ -2546,7 +2678,7 @@ function renderWeek(rows) {
 }
 
 function renderMonth(rows) {
-  const from = dateEl.value || todayISO();
+  const from = effectiveBoardRange('month').from;
   const base = new Date(from + 'T12:00:00');
   const y = base.getFullYear();
   const m = base.getMonth();
@@ -2629,14 +2761,7 @@ function render() {
   pickSeq = 0;
   const rows = filteredSailings();
   let html = '';
-  if (state.view === 'day') {
-    const day = dateEl.value || todayISO();
-    const dayRows = rows.filter((r) => r.date === day);
-    const use = dayRows.length ? dayRows : rows;
-    html =
-      `<h2 class="fh-day-head">${escapeHtml(dayTitle(day))}</h2>` +
-      (state.groupVoyages ? renderDayGrouped(use) : renderDay(use));
-  } else if (state.view === 'agenda') html = renderAgenda(rows);
+  if (state.view === 'agenda') html = renderAgenda(rows);
   else if (state.view === 'week') html = renderWeek(rows);
   else if (state.view === 'vessels') html = renderVessels(rows);
   else html = renderMonth(rows);
@@ -2662,7 +2787,7 @@ function render() {
     cell.addEventListener('click', () => {
       dateEl.value = cell.dataset.day;
       dateEndEl.value = '';
-      applyViewOnly('day');
+      applyViewOnly('agenda');
       loadSailings();
     });
   });
@@ -2671,6 +2796,8 @@ function render() {
   bindWeekScrollSync();
   bindTableTools();
   enableBoardDragScroll();
+  syncStickyTop();
+  updateRangeHint();
 }
 
 function tableFromEl(table) {
@@ -2748,11 +2875,6 @@ function vesselsAsTable(rows) {
 function viewExportTable() {
   const rows = filteredSailings();
   if (state.view === 'vessels') return vesselsAsTable(rows);
-  if (state.view === 'day') {
-    const day = dateEl.value || todayISO();
-    const dayRows = rows.filter((r) => r.date === day);
-    return sailingsAsTable(dayRows.length ? dayRows : rows);
-  }
   return sailingsAsTable(rows);
 }
 
@@ -2848,7 +2970,9 @@ function doPrintView() {
   document.body.classList.add('fh-printing');
   document.body.classList.toggle(
     'fh-print-landscape',
-    state.view === 'week' || (state.view === 'vessels' && state.vesselsLayout === 'week'),
+    state.view === 'week' ||
+      state.view === 'month' ||
+      (state.view === 'vessels' && state.vesselsLayout === 'week'),
   );
   document.querySelectorAll('.fh-week-col-body').forEach((el) => {
     el.dataset.prevMax = el.style.maxHeight || '';
@@ -2945,77 +3069,39 @@ async function openDetails(tripId) {
   }
 }
 
-function goToday() {
-  const t = todayISO();
-  dateEl.value = t;
-  dateEndEl.value = '';
-  setView('day');
-  loadSailings();
-}
-
-function jumpRange(kind) {
-  const t = todayISO();
-  if (kind === 'today') {
-    goToday();
-    return;
-  }
-  if (kind === 'this_week') {
-    const start = weekStartISO(t);
-    dateEl.value = start;
-    dateEndEl.value = addDaysISO(start, 6);
-    setView('week');
-  } else if (kind === 'next_week') {
-    const start = addDaysISO(weekStartISO(t), 7);
-    dateEl.value = start;
-    dateEndEl.value = addDaysISO(start, 6);
-    setView('week');
-  } else if (kind === 'next_2_weeks') {
-    dateEl.value = t;
-    dateEndEl.value = addDaysISO(t, 13);
-    setView('agenda');
-  } else if (kind === 'this_month') {
-    const start = `${t.slice(0, 8)}01`;
-    dateEl.value = start;
-    dateEndEl.value = monthEndISO(start);
-    setView('month');
-  } else if (kind === 'this_next_month') {
-    const start = `${t.slice(0, 8)}01`;
-    const nextStart = addMonthsISO(start, 1).slice(0, 8) + '01';
-    dateEl.value = start;
-    dateEndEl.value = monthEndISO(nextStart);
-    setView('agenda');
-  } else {
-    return;
-  }
-  loadSailings();
-  document.getElementById('fh-jump')?.removeAttribute('open');
-}
-
 function goPrev() {
-  const from = dateEl.value || todayISO();
-  if (state.view === 'week') {
-    dateEl.value = addDaysISO(from, -7);
-    dateEndEl.value = addDaysISO(dateEl.value, 6);
-  } else if (state.view === 'month') {
-    dateEl.value = addMonthsISO(from, -1).slice(0, 8) + '01';
-    dateEndEl.value = monthEndISO(dateEl.value);
+  const focus = focusDate();
+  const end = endDateRaw();
+  const v = normalizeView(state.view);
+  if (v === 'week') {
+    dateEl.value = addDaysISO(focus, -7);
+  } else if (v === 'month') {
+    dateEl.value = addMonthsISO(focus, -1);
+  } else if (end && end !== focus) {
+    const span = daysBetween(focus, end);
+    dateEl.value = addDaysISO(focus, -(span + 1));
+    dateEndEl.value = addDaysISO(dateEl.value, span);
   } else {
-    dateEl.value = addDaysISO(from, -1);
+    dateEl.value = addDaysISO(focus, -1);
     dateEndEl.value = '';
   }
   loadSailings();
 }
 
 function goNext() {
-  const from = dateEl.value || todayISO();
-  if (state.view === 'week') {
-    dateEl.value = addDaysISO(from, 7);
-    dateEndEl.value = addDaysISO(dateEl.value, 6);
-  } else if (state.view === 'month') {
-    dateEl.value = addMonthsISO(from, 1).slice(0, 8) + '01';
-    dateEndEl.value = monthEndISO(dateEl.value);
+  const focus = focusDate();
+  const end = endDateRaw();
+  const v = normalizeView(state.view);
+  if (v === 'week') {
+    dateEl.value = addDaysISO(focus, 7);
+  } else if (v === 'month') {
+    dateEl.value = addMonthsISO(focus, 1);
+  } else if (end && end !== focus) {
+    const span = daysBetween(focus, end);
+    dateEl.value = addDaysISO(focus, span + 1);
+    dateEndEl.value = addDaysISO(dateEl.value, span);
   } else {
-    dateEl.value = addDaysISO(from, 1);
+    dateEl.value = addDaysISO(focus, 1);
     dateEndEl.value = '';
   }
   loadSailings();
@@ -3091,13 +3177,6 @@ document.getElementById('fh-clear-all-cache')?.addEventListener('click', () => {
   clearAllSailingCache();
   document.getElementById('fh-cache-menu')?.removeAttribute('open');
 });
-document.querySelectorAll('[data-jump]').forEach((btn) => {
-  btn.addEventListener('click', () => jumpRange(btn.dataset.jump));
-});
-document.addEventListener('click', (ev) => {
-  const jump = document.getElementById('fh-jump');
-  if (jump?.open && !jump.contains(ev.target)) jump.removeAttribute('open');
-});
 document.getElementById('fh-group')?.addEventListener('change', (e) => {
   state.groupVoyages = !!e.target.checked;
   savePrefs();
@@ -3149,15 +3228,6 @@ document.querySelectorAll('[data-week-split]').forEach((btn) => {
   btn.addEventListener('click', () => {
     state.weekSplit = btn.dataset.weekSplit === 'rows' ? 'rows' : 'dual';
     syncSegGroup('data-week-split', state.weekSplit);
-    savePrefs();
-    render();
-  });
-});
-document.querySelectorAll('[data-vessels-density]').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const v = btn.dataset.vesselsDensity;
-    state.vesselsDensity = v === 'roomy' || v === 'tight' ? v : 'normal';
-    syncSegGroup('data-vessels-density', state.vesselsDensity);
     savePrefs();
     render();
   });
@@ -3249,6 +3319,14 @@ document.querySelectorAll('[data-sidebar]').forEach((btn) => {
 });
 document.getElementById('fh-prev').addEventListener('click', goPrev);
 document.getElementById('fh-next').addEventListener('click', goNext);
+document.getElementById('fh-today')?.addEventListener('click', () => {
+  if (state.fetching) return;
+  goToday();
+});
+document.getElementById('fh-this-week')?.addEventListener('click', () => {
+  if (state.fetching) return;
+  goThisWeek();
+});
 document.getElementById('loc-add')?.addEventListener('click', addLocalSailing);
 document.getElementById('loc-new')?.addEventListener('click', () => clearLocForm());
 document.getElementById('fh-local-open')?.addEventListener('click', () => {
@@ -3305,7 +3383,17 @@ function setFiltersOpen(open) {
   document.body.classList.toggle('fh-filters-open', !!open);
   filtersToggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
   if (filtersScrim) filtersScrim.setAttribute('aria-hidden', open ? 'false' : 'true');
-  if (open) filtersToggle?.focus?.();
+  if (open) {
+    // Re-sync tab→panel so Filters is never blank after a stale localStorage state.
+    let tab = 'filters';
+    try {
+      tab = localStorage.getItem('fh_drawer_tab') === 'display' ? 'display' : 'filters';
+    } catch {
+      /* ignore */
+    }
+    setDrawerTab(tab);
+    filtersToggle?.focus?.();
+  }
 }
 
 function closeFiltersDrawer() {
@@ -3329,6 +3417,8 @@ try {
 } catch {
   setDrawerTab('filters');
 }
+// Default landing tab is Filters (not Display).
+if (!localStorage.getItem('fh_drawer_tab')) setDrawerTab('filters');
 
 function enableDragScroll(el, { axes = 'x' } = {}) {
   if (!el || el.dataset.dragScrollBound === '1') return;
@@ -3437,13 +3527,30 @@ function syncStickyTop() {
   const topH = top ? Math.ceil(top.getBoundingClientRect().height) : 0;
   const h = navH + topH;
   if (h > 0) document.documentElement.style.setProperty('--fh-sticky-top', `${h}px`);
+  const dayHead = mainEl?.querySelector('.fh-agenda-day .fh-day-head');
+  if (dayHead) {
+    document.documentElement.style.setProperty(
+      '--fh-day-head-h',
+      `${Math.ceil(dayHead.getBoundingClientRect().height)}px`,
+    );
+  }
+  const weekHead = mainEl?.querySelector('.fh-week-rows-h, .fh-week-vdual-h');
+  if (weekHead) {
+    document.documentElement.style.setProperty(
+      '--fh-week-head-h',
+      `${Math.ceil(weekHead.getBoundingClientRect().height)}px`,
+    );
+  }
 }
 
 async function init() {
-  applyStaticUi();
+  const manager = await probeManagerApi();
+  applyStaticUi(!manager);
   applyBoardFit();
-  enableDragScroll(document.querySelector('.fh-view-strip'));
+  enableBoardDragScroll();
   if (!dateEl.value) dateEl.value = todayISO();
+  ensureFetchDatesDefaulted();
+  setView(state.view);
   setStatus('Loading ports…');
   syncStickyTop();
   window.addEventListener('resize', syncStickyTop);
@@ -3455,6 +3562,8 @@ async function init() {
     savePrefs();
     loadSailings();
   });
+  fetchFromEl?.addEventListener('change', () => savePrefs());
+  fetchToEl?.addEventListener('change', () => savePrefs());
   try {
     await loadPorts();
     await loadConnections();
@@ -3462,6 +3571,11 @@ async function init() {
   } catch (e) {
     setStatus(String(e.message || e), true);
   } finally {
+    try {
+      setDrawerTab(localStorage.getItem('fh_drawer_tab') === 'display' ? 'display' : 'filters');
+    } catch {
+      setDrawerTab('filters');
+    }
     syncStickyTop();
   }
 }

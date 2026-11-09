@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0a3d4a" />
     <title>Ferryhopper planner — Rhodes Port Tracker</title>
-    <link rel="icon" href="./icons/icon-32.png?v=24" type="image/png" sizes="32x32" />
-    <link rel="icon" href="./icons/icon-16.png?v=24" type="image/png" sizes="16x16" />
-    <link rel="shortcut icon" href="./icons/icon.ico?v=24" />
-    <link rel="icon" href="./icons/icon.svg?v=24" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="./icons/icon-192.png?v=24" />
+    <link rel="icon" href="./icons/icon-32.png?v=30" type="image/png" sizes="32x32" />
+    <link rel="icon" href="./icons/icon-16.png?v=30" type="image/png" sizes="16x16" />
+    <link rel="shortcut icon" href="./icons/icon.ico?v=30" />
+    <link rel="icon" href="./icons/icon.svg?v=30" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png?v=30" />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./css/styles.css?v=24" />
-    <link rel="stylesheet" href="./css/ferries.css?v=24" />
+    <link rel="stylesheet" href="./css/styles.css?v=30" />
+    <link rel="stylesheet" href="./css/ferries.css?v=30" />
   </head>
   <body class="fh-page fh-sidebar-left">
     <div class="atmosphere" aria-hidden="true"></div>
@@ -27,7 +27,7 @@
     <header class="top fh-top">
       <div class="fh-strip fh-strip-a">
         <div class="brand-block">
-          <img class="brand-mark" src="./icons/icon-32.png?v=24" width="32" height="32" alt="" />
+          <img class="brand-mark" src="./icons/icon-32.png?v=30" width="32" height="32" alt="" />
           <div class="brand-text">
             <h1>Ferryhopper planner</h1>
             <p id="fh-status" class="status index-count" aria-live="polite">Ready</p>
@@ -41,25 +41,21 @@
         <div class="fh-ctrl-row fh-ctrl-range fh-strip-b" role="group" aria-label="When">
           <span class="fh-ctrl-tag">When</span>
           <div class="fh-dates">
-            <label>From <input type="date" id="fh-date" /></label>
-            <label class="fh-range-label">to <input type="date" id="fh-date-end" title="Optional end (week/month)" /></label>
-            <button type="button" id="fh-date-end-x" class="q-clear always" aria-label="Clear end date">×</button>
+            <label>Date <input type="date" id="fh-date" /></label>
+            <span class="fh-date-end-wrap" id="fh-date-end-wrap">
+              <label class="fh-range-label">to <input type="date" id="fh-date-end" title="Optional end (Agenda / Vessels)" /></label>
+              <button type="button" id="fh-date-end-x" class="q-clear always" aria-label="Clear end date">×</button>
+            </span>
           </div>
           <div class="fh-nav" role="group" aria-label="Date navigation">
             <button type="button" id="fh-prev" class="ghost" title="Previous">‹</button>
             <button type="button" id="fh-next" class="ghost" title="Next">›</button>
           </div>
-          <details class="fh-menu" id="fh-jump">
-            <summary class="ghost">Jump</summary>
-            <div class="fh-menu-panel" role="menu">
-              <button type="button" data-jump="today">Today</button>
-              <button type="button" data-jump="this_week">This week</button>
-              <button type="button" data-jump="next_week">Next week</button>
-              <button type="button" data-jump="next_2_weeks">Next 2 weeks</button>
-              <button type="button" data-jump="this_month">This month</button>
-              <button type="button" data-jump="this_next_month">This and next month</button>
-            </div>
-          </details>
+          <div class="fh-quick" role="group" aria-label="Quick range">
+            <button type="button" id="fh-today" class="ghost" title="Jump to today">Today</button>
+            <button type="button" id="fh-this-week" class="ghost" title="This week as Agenda (Mon–Sun)">This week</button>
+          </div>
+          <span id="fh-range-hint" class="fh-range-hint muted" aria-live="polite"></span>
           <button type="button" id="fh-disrupt-btn" class="ghost fh-disrupt-btn" aria-haspopup="dialog">
             Disruptions <span id="fh-disrupt-count" class="fh-disrupt-count">0</span>
           </button>
@@ -67,8 +63,7 @@
         <div class="fh-ctrl-row fh-strip-c fh-view-strip" role="group" aria-label="Views">
           <span class="fh-ctrl-tag">Views</span>
           <div class="seg fh-view-seg" role="group" aria-label="Board view">
-            <button type="button" class="seg-btn active" data-view="day">Day</button>
-            <button type="button" class="seg-btn" data-view="agenda">Agenda</button>
+            <button type="button" class="seg-btn active" data-view="agenda">Agenda</button>
             <button type="button" class="seg-btn" data-view="week">Week</button>
             <button type="button" class="seg-btn" data-view="month">Month</button>
             <button type="button" class="seg-btn" data-view="vessels">Vessels</button>
@@ -77,8 +72,12 @@
         </div>
         <div class="fh-ctrl-row fh-ctrl-actions fh-strip-d" role="group" aria-label="Data">
           <span class="fh-ctrl-tag">Data</span>
+          <div class="fh-fetch-range" title="Fetch/Clear use this range (independent of When)">
+            <label>Fetch <input type="date" id="fh-fetch-from" /></label>
+            <label class="fh-range-label">to <input type="date" id="fh-fetch-to" /></label>
+          </div>
           <button type="button" id="fh-fetch" class="ghost">Fetch</button>
-          <label class="fh-check" title="Fetch only missing days; uncheck to overwrite From→to"><input type="checkbox" id="fh-skip" checked /> Skip cached</label>
+          <label class="fh-check" title="Fetch only missing days; uncheck to overwrite Fetch From→to"><input type="checkbox" id="fh-skip" checked /> Skip cached</label>
           <details class="fh-menu" id="fh-cache-menu">
             <summary class="ghost">Cache</summary>
             <div class="fh-menu-panel" role="menu">
@@ -127,14 +126,6 @@
             <label class="fh-check fh-check-dark" data-display="vessels" title="Tables size to content instead of full column width.">
               <input type="checkbox" id="fh-vessels-autofit" checked /> Autofit vessel tables
             </label>
-            <div class="fh-filter-field" data-display="vessels" title="Gap between vessel cards.">
-              <span class="fh-panel-pos-label">Space</span>
-              <div class="seg seg-compact" role="group" aria-label="Vessel card spacing">
-                <button type="button" class="seg-btn" data-vessels-density="roomy">Roomy</button>
-                <button type="button" class="seg-btn active" data-vessels-density="normal">Normal</button>
-                <button type="button" class="seg-btn" data-vessels-density="tight">Tight</button>
-              </div>
-            </div>
             <div class="fh-filter-field" data-display="agenda" title="Agenda nesting: by day (out then return) or by direction then days.">
               <span class="fh-panel-pos-label">Agenda group</span>
               <div class="seg seg-compact" role="group" aria-label="Agenda group">
@@ -333,6 +324,6 @@
     </dialog>
 
     <script type="module" src="./js/nav.js"></script>
-    <script type="module" src="./js/ferries.js?v=24"></script>
+    <script type="module" src="./js/ferries.js?v=30"></script>
   </body>
 </html>

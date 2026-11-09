@@ -9,6 +9,33 @@ export function isStaticHost() {
   return /\.github\.io$/i.test(location.hostname);
 }
 
+/** True when local manager API answers /api/health (Fetch / Clear / local edits). */
+let _managerApi = null;
+
+export async function probeManagerApi() {
+  if (_managerApi !== null) return _managerApi;
+  if (isStaticHost()) {
+    _managerApi = false;
+    return false;
+  }
+  try {
+    const res = await fetch(apiUrl('api/health'), { cache: 'no-store' });
+    if (!res.ok) {
+      _managerApi = false;
+      return false;
+    }
+    const data = await res.json();
+    _managerApi = !!(data && (data.manager || data.ferryhopper_fetch || data.ok));
+  } catch {
+    _managerApi = false;
+  }
+  return _managerApi;
+}
+
+export function hasManagerApi() {
+  return _managerApi === true;
+}
+
 /** Prefer short messages; never dump HTML error pages into the UI. */
 export async function apiErrorMessage(res) {
   const ct = res.headers.get('content-type') || '';
