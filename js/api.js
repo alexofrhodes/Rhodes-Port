@@ -160,6 +160,21 @@ function eachDay(from, to) {
   return days.length ? days : [start];
 }
 
+/** Run async work over items with bounded concurrency. */
+async function mapPool(items, limit, fn) {
+  const out = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const i = next++;
+      out[i] = await fn(items[i], i);
+    }
+  }
+  const n = Math.min(Math.max(1, limit), Math.max(1, items.length));
+  await Promise.all(Array.from({ length: n }, () => worker()));
+  return out;
+}
+
 /**
  * Assemble sailings from published day JSON (same idea as ferryhopper.load_range).
  * Does not merge local_sailings or annotate Via (caller / UI can).
@@ -185,36 +200,29 @@ export async function loadStaticSailings({
   const wantOut = dir === 'out' || dir === 'both' || dir === 'departures' || dir === 'dep';
   const wantIn = dir === 'in' || dir === 'both' || dir === 'arrivals' || dir === 'arr';
   const dayList = eachDay(from, to);
-  const sailings = [];
-  const missing = [];
+  const tasks = [];
   for (const day of dayList) {
     for (const origin of expanded) {
-      if (wantOut) {
-        const cached = await loadDayCache(origin, day, 'out');
-        const key = `${origin}|${day}|out`;
-        if (cached && cached.sailings != null) {
-          for (const r of cached.sailings || []) {
-            const row = { ...r, direction: r.direction || 'out' };
-            if (portKey(origin) !== 'RODOS') row.pier = row.pier || origin;
-            sailings.push(row);
-          }
-        } else {
-          missing.push(key);
-        }
+      if (wantOut) tasks.push({ origin, day, direction: 'out' });
+      if (wantIn) tasks.push({ origin, day, direction: 'in' });
+    }
+  }
+  const results = await mapPool(tasks, 8, async (t) => {
+    const cached = await loadDayCache(t.origin, t.day, t.direction);
+    return { ...t, cached };
+  });
+  const sailings = [];
+  const missing = [];
+  for (const { origin, day, direction: d, cached } of results) {
+    const key = `${origin}|${day}|${d}`;
+    if (cached && cached.sailings != null) {
+      for (const r of cached.sailings || []) {
+        const row = { ...r, direction: d === 'in' ? 'in' : r.direction || 'out' };
+        if (portKey(origin) !== 'RODOS') row.pier = row.pier || origin;
+        sailings.push(row);
       }
-      if (wantIn) {
-        const cached = await loadDayCache(origin, day, 'in');
-        const key = `${origin}|${day}|in`;
-        if (cached && cached.sailings != null) {
-          for (const r of cached.sailings || []) {
-            const row = { ...r, direction: 'in' };
-            if (portKey(origin) !== 'RODOS') row.pier = row.pier || origin;
-            sailings.push(row);
-          }
-        } else {
-          missing.push(key);
-        }
-      }
+    } else {
+      missing.push(key);
     }
   }
   return {

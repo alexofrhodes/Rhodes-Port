@@ -1,4 +1,5 @@
 import { apiUrl } from './api.js';
+import { openAbout } from './about.js';
 import { BRAND, SHIPS, PORTS } from './config.js';
 import { fetchShips } from './data/ships.js';
 import { createMap } from './ui/map.js';
@@ -674,16 +675,11 @@ document.querySelectorAll('[data-mode]').forEach((btn) => {
 document.getElementById('refresh').addEventListener('click', () => refresh(false, true));
 document.getElementById('print').addEventListener('click', printView);
 document.getElementById('about-btn')?.addEventListener('click', () => {
-  alert(
-    'Rhodes Port Tracker — ferry planner + live AIS ships.\n\n' +
-      'Alex of Rhodes\n' +
-      'alexofrhodes@gmail.com\n' +
-      'https://github.com/alexofrhodes\n\n' +
-      'Ferries = Ferryhopper cache planner · Ports = facilities map · Live = AIS.\n\n' +
-      'Disruptions banner on Ferries = Ferryhopper country alerts (not weather).\n' +
-      'Print = current filtered Live table or Ferries view on screen.\n' +
-      'Search: space-separated partials (all must match).',
-  );
+  openAbout({
+    desc:
+      'Live AIS ships calling Rhodes ports — filter, map, and print the current traffic.',
+    showQr: true,
+  });
 });
 
 buildPortFilters();

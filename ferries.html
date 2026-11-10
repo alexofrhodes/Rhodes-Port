@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0a3d4a" />
     <title>Ferryhopper planner — Rhodes Port Tracker</title>
-    <link rel="icon" href="./icons/icon-32.png?v=30" type="image/png" sizes="32x32" />
-    <link rel="icon" href="./icons/icon-16.png?v=30" type="image/png" sizes="16x16" />
-    <link rel="shortcut icon" href="./icons/icon.ico?v=30" />
-    <link rel="icon" href="./icons/icon.svg?v=30" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="./icons/icon-192.png?v=30" />
+    <link rel="icon" href="./icons/icon-32.png?v=33" type="image/png" sizes="32x32" />
+    <link rel="icon" href="./icons/icon-16.png?v=33" type="image/png" sizes="16x16" />
+    <link rel="shortcut icon" href="./icons/icon.ico?v=33" />
+    <link rel="icon" href="./icons/icon.svg?v=33" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png?v=33" />
     <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./css/styles.css?v=30" />
-    <link rel="stylesheet" href="./css/ferries.css?v=30" />
+    <link rel="stylesheet" href="./css/styles.css?v=33" />
+    <link rel="stylesheet" href="./css/ferries.css?v=33" />
   </head>
   <body class="fh-page fh-sidebar-left">
     <div class="atmosphere" aria-hidden="true"></div>
@@ -27,7 +27,7 @@
     <header class="top fh-top">
       <div class="fh-strip fh-strip-a">
         <div class="brand-block">
-          <img class="brand-mark" src="./icons/icon-32.png?v=30" width="32" height="32" alt="" />
+          <img class="brand-mark" src="./icons/icon-32.png?v=33" width="32" height="32" alt="" />
           <div class="brand-text">
             <h1>Ferryhopper planner</h1>
             <p id="fh-status" class="status index-count" aria-live="polite">Ready</p>
@@ -54,8 +54,8 @@
           <div class="fh-quick" role="group" aria-label="Quick range">
             <button type="button" id="fh-today" class="ghost" title="Jump to today">Today</button>
             <button type="button" id="fh-this-week" class="ghost" title="This week as Agenda (Mon–Sun)">This week</button>
+            <button type="button" id="fh-this-month" class="ghost" title="This month as Agenda (1st–last)">This month</button>
           </div>
-          <span id="fh-range-hint" class="fh-range-hint muted" aria-live="polite"></span>
           <button type="button" id="fh-disrupt-btn" class="ghost fh-disrupt-btn" aria-haspopup="dialog">
             Disruptions <span id="fh-disrupt-count" class="fh-disrupt-count">0</span>
           </button>
@@ -324,6 +324,6 @@
     </dialog>
 
     <script type="module" src="./js/nav.js"></script>
-    <script type="module" src="./js/ferries.js?v=30"></script>
+    <script type="module" src="./js/ferries.js?v=33"></script>
   </body>
 </html>

@@ -181,11 +181,6 @@ body.fh-is-dragging {
   padding: 0.15rem 0.4rem;
 }
 
-.fh-range-hint {
-  font-size: 0.72rem;
-  white-space: nowrap;
-}
-
 .fh-date-end-wrap {
   display: inline-flex;
   flex-wrap: wrap;

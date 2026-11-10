@@ -7,6 +7,7 @@ import {
   originSlug,
   probeManagerApi,
 } from './api.js';
+import { openAbout } from './about.js';
 
 const state = {
   view: 'agenda',
@@ -665,6 +666,8 @@ function officeBucketHtml(bucketRows, { showEmpty } = {}) {
   if (!bucketRows.length) {
     return showEmpty ? `<p class="muted">None in cache — Fetch if needed.</p>` : '';
   }
+  // Cards only on narrow viewports (desktop CSS already hides them — skip building).
+  const wantCards = typeof window !== 'undefined' && window.matchMedia('(max-width: 899px)').matches;
   if (state.groupVoyages) {
     const voyages = groupVoyages(sortLegsByTime(bucketRows));
     if (!voyages.length) {
@@ -673,12 +676,14 @@ function officeBucketHtml(bucketRows, { showEmpty } = {}) {
     const table = officeTableHtml(
       voyages.map((v) => officeRowWithPick(officeRowFromVoyage(v), voyageAsPick(v))),
     );
+    if (!wantCards) return table;
     const cards = voyages.map((v) => voyageCardHtml(v)).join('');
     return `${table}<div class="fh-day-cards">${cards}</div>`;
   }
   const table = officeTableHtml(
     bucketRows.map((r) => officeRowWithPick(officeRowFromLeg(r), r)),
   );
+  if (!wantCards) return table;
   const cards = bucketRows
     .map((r) => {
       const { attrs, key } = pickMeta(r, 'fh-leg-card');
@@ -975,7 +980,6 @@ function setView(view) {
   document.querySelectorAll('[data-view]').forEach((b) => b.classList.toggle('active', b.dataset.view === state.view));
   applySmartDisplay();
   syncEndVisibility();
-  updateRangeHint();
 }
 
 /** User-owned focus day (#fh-date). Views derive ranges; never rewrite this to Mon/1st. */
@@ -1029,22 +1033,6 @@ function syncEndVisibility() {
   if (!wrap) return;
   const show = state.view === 'agenda' || state.view === 'vessels';
   wrap.hidden = !show;
-}
-
-function updateRangeHint() {
-  const el = document.getElementById('fh-range-hint');
-  if (!el) return;
-  const v = normalizeView(state.view);
-  const { from, to, focus } = effectiveBoardRange();
-  if (v === 'week') {
-    el.textContent = `Showing ${from} → ${to} (week of ${focus})`;
-  } else if (v === 'month') {
-    el.textContent = `Showing ${from.slice(0, 7)} (${focus})`;
-  } else if (from === to) {
-    el.textContent = `Showing ${from}`;
-  } else {
-    el.textContent = `Showing ${from} → ${to}`;
-  }
 }
 
 /** Fetch/Clear range — independent of board When. */
@@ -1147,7 +1135,8 @@ function applySmartDisplay() {
 }
 
 /**
- * Switch view. Never rewrite Date (focus).
+ * Switch view.
+ * → Week: Date = Monday of the current focus week (Today / This week for “this” week).
  * Week/Month→Agenda: clear derived End. Week/Month→Vessels: set End to that span.
  */
 function applyViewOnly(view) {
@@ -1156,14 +1145,15 @@ function applyViewOnly(view) {
   const prevView = normalizeView(state.view);
   const focus = focusDate();
 
-  if (next === 'agenda' && (prevView === 'week' || prevView === 'month')) {
+  if (next === 'week') {
+    dateEl.value = weekStartISO(focus);
+  } else if (next === 'agenda' && (prevView === 'week' || prevView === 'month')) {
     if (endIsDerivedSpan(focus, endDateRaw())) dateEndEl.value = '';
   } else if (next === 'vessels' && prevView === 'week') {
     dateEndEl.value = addDaysISO(weekStartISO(focus), 6);
   } else if (next === 'vessels' && prevView === 'month') {
     dateEndEl.value = monthEndISO(focus);
   }
-  // → Week / → Month: keep focus + End as-is (End hidden; ignored by effectiveBoardRange)
 
   setView(next);
   const cur = effectiveBoardRange();
@@ -1171,22 +1161,33 @@ function applyViewOnly(view) {
     loadSailings({ quiet: true });
   } else {
     render();
-    updateRangeHint();
   }
 }
 
 function goToday() {
-  dateEl.value = todayISO();
+  const t = todayISO();
   const v = normalizeView(state.view);
-  if (v === 'agenda' || v === 'vessels') dateEndEl.value = '';
-  // Week/Month: keep End whatever; range is derived from focus=today
+  if (v === 'week') {
+    dateEl.value = weekStartISO(t);
+  } else {
+    dateEl.value = t;
+    if (v === 'agenda' || v === 'vessels') dateEndEl.value = '';
+  }
   loadSailings();
 }
 
 function goThisWeek() {
+  const mon = weekStartISO(todayISO());
+  dateEl.value = mon; // start = Monday of this week
+  dateEndEl.value = addDaysISO(mon, 6);
+  setView('agenda');
+  loadSailings();
+}
+
+function goThisMonth() {
   const t = todayISO();
-  dateEl.value = t; // focus stays today, not Monday
-  dateEndEl.value = addDaysISO(weekStartISO(t), 6);
+  dateEl.value = t;
+  dateEndEl.value = monthEndISO(t);
   setView('agenda');
   loadSailings();
 }
@@ -1597,12 +1598,9 @@ async function loadSailings({ signal, quiet = false } = {}) {
         : '';
     const mode = data.static || isStaticHost() ? ' · cached (static)' : '';
     if (data.static) applyStaticUi(true);
-    setStatus(
-      `${state.sailings.length} legs (${nOut} leave / ${nIn} return) · ${groupVoyages(state.sailings).length} voyages${miss}${dirHint}${mode}`,
-    );
+    setStatus(`${state.sailings.length} legs (${nOut} leave / ${nIn} return)${miss}${dirHint}${mode}`);
     if (!quiet) await loadDisruptions(from);
     render();
-    updateRangeHint();
     if (!quiet) {
       await savePrefs();
       if (!isStaticHost()) {
@@ -2630,12 +2628,18 @@ function renderWeek(rows) {
   const hubs = hubNames();
   const showDir = 'both';
   const split = state.weekSplit === 'rows' ? 'rows' : 'dual';
+  const byDate = new Map();
+  for (const r of rows) {
+    if (!r.date) continue;
+    if (!byDate.has(r.date)) byDate.set(r.date, []);
+    byDate.get(r.date).push(r);
+  }
   const days = [];
   for (let i = 0; i < 7; i++) {
     const d = new Date(start);
     d.setDate(start.getDate() + i);
     const iso = localISO(d);
-    const dayRows = rows.filter((r) => r.date === iso && matchesShowDirection(r, showDir, hubs));
+    const dayRows = (byDate.get(iso) || []).filter((r) => matchesShowDirection(r, showDir, hubs));
     const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
     const leaving = showDir === 'in' ? [] : dayRows.filter((r) => isLeaving(r, hubs));
     const returning = showDir === 'out' ? [] : dayRows.filter((r) => isReturning(r, hubs));
@@ -2703,17 +2707,21 @@ function renderMonth(rows) {
     .join('');
   let cells = '';
   for (let i = 0; i < startPad; i++) cells += '<div class="fh-month-cell muted"></div>';
+  const MONTH_PREVIEW = 3;
   for (let day = 1; day <= last.getDate(); day++) {
     const iso = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const list = byDay.get(iso) || [];
-    const preview = list
+    const shown = list.slice(0, MONTH_PREVIEW);
+    const more = list.length - shown.length;
+    let preview = shown
       .map((item) =>
         formatLegBlockHtml(state.groupVoyages ? legValsFromVoyage(item) : legValsFromRow(item), {
           wrapClass: 'fh-month-leg',
         }),
       )
       .join('');
-    cells += `<div class="fh-month-cell" data-day="${iso}"><div class="fh-month-daynum">${day}</div>${preview || '<div class="count">—</div>'}</div>`;
+    if (more > 0) preview += `<div class="count">+${more}</div>`;
+    cells += `<div class="fh-month-cell" data-day="${iso}"><div class="fh-month-daynum">${day}${list.length ? ` · ${list.length}` : ''}</div>${preview || '<div class="count">—</div>'}</div>`;
   }
   return `<div class="fh-month fh-month-detail">${heads}${cells}</div>`;
 }
@@ -2742,16 +2750,8 @@ function renderDayGrouped(rows) {
   }
   let html = '';
   for (const sec of sections) {
-    const voyages = groupVoyages(sortLegsByTime(sec.rows));
-    html += `<h3 class="fh-day-head">${escapeHtml(sec.title)} · ${voyages.length} voyages</h3>`;
-    if (!voyages.length) {
-      html += `<p class="muted">None in cache — Fetch if needed.</p>`;
-      continue;
-    }
-    html += officeTableHtml(
-      voyages.map((v) => officeRowWithPick(officeRowFromVoyage(v), voyageAsPick(v))),
-    );
-    html += `<div class="fh-day-cards">${voyages.map((v) => voyageCardHtml(v)).join('')}</div>`;
+    html += `<h3 class="fh-day-head">${escapeHtml(sec.title)}</h3>`;
+    html += officeBucketHtml(sec.rows, { showEmpty: true });
   }
   return `<div class="fh-day-office">${html}</div>`;
 }
@@ -2787,8 +2787,7 @@ function render() {
     cell.addEventListener('click', () => {
       dateEl.value = cell.dataset.day;
       dateEndEl.value = '';
-      applyViewOnly('agenda');
-      loadSailings();
+      applyViewOnly('agenda'); // loads only if range changed
     });
   });
   bindPickClicks();
@@ -2797,7 +2796,6 @@ function render() {
   bindTableTools();
   enableBoardDragScroll();
   syncStickyTop();
-  updateRangeHint();
 }
 
 function tableFromEl(table) {
@@ -3154,21 +3152,13 @@ document.getElementById('fh-sync-week-scroll')?.addEventListener('change', (e) =
   state.syncWeekScroll = !!e.target.checked;
 });
 
-function showAbout() {
-  alert(
-    'Rhodes Port Tracker — ferry planner (docs/ GH Pages repo).\n\n' +
-      'Alex of Rhodes\n' +
-      'alexofrhodes@gmail.com\n' +
-      'https://github.com/alexofrhodes\n\n' +
-      'Load/Fetch/Clear/local use the same docs/data cache as the GUI.\n' +
-      'Missing day-direction cache files = Fetch fills them. Stop cancels pending days.\n' +
-      'Disruptions = Ferryhopper country alerts for the selected day (not weather).\n' +
-      'Print = what is on screen (day/agenda office tables; week/month grids; vessels itineraries).\n' +
-      'Vessels = Port / Arrival / Departure per vessel per day (stack or Mon–Sun week).\n' +
-      'Group voyages = one row/card per departure with all dests.',
-  );
-}
-document.getElementById('about-btn')?.addEventListener('click', showAbout);
+document.getElementById('about-btn')?.addEventListener('click', () => {
+  openAbout({
+    desc:
+      'Ferry planner for Rhodes — browse Agenda, Week, Month, and Vessels from the Ferryhopper cache; Fetch fills missing days when the manager is running.',
+    showQr: true,
+  });
+});
 document.getElementById('fh-clear-cache')?.addEventListener('click', () => {
   clearCacheSlice();
   document.getElementById('fh-cache-menu')?.removeAttribute('open');
@@ -3327,6 +3317,10 @@ document.getElementById('fh-this-week')?.addEventListener('click', () => {
   if (state.fetching) return;
   goThisWeek();
 });
+document.getElementById('fh-this-month')?.addEventListener('click', () => {
+  if (state.fetching) return;
+  goThisMonth();
+});
 document.getElementById('loc-add')?.addEventListener('click', addLocalSailing);
 document.getElementById('loc-new')?.addEventListener('click', () => clearLocForm());
 document.getElementById('fh-local-open')?.addEventListener('click', () => {
@@ -3451,6 +3445,11 @@ function enableDragScroll(el, { axes = 'x' } = {}) {
   el.addEventListener('pointerdown', (ev) => {
     if (ev.button != null && ev.button !== 0) return;
     if (ev.target.closest('a, button, input, select, textarea, label, summary, .fh-det, .fh-links')) return;
+    // Native scrollbar gutter — don't capture or the thumb can't be dragged.
+    const rect = el.getBoundingClientRect();
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+    if (x >= el.clientWidth || y >= el.clientHeight) return;
     // Innermost bound target owns the gesture (nested week/day vs board).
     ev.stopPropagation();
     down = true;

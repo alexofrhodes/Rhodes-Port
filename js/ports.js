@@ -7,6 +7,7 @@ import {
   loadStaticSailings,
   portKey,
 } from './api.js';
+import { openAbout } from './about.js';
 import { PORTS as STATIC_PORTS } from './config.js';
 
 const statusEl = document.getElementById('ports-status');
@@ -350,15 +351,12 @@ async function load() {
 document.getElementById('ports-reload')?.addEventListener('click', load);
 hubEl?.addEventListener('change', load);
 document.getElementById('about-btn')?.addEventListener('click', () => {
-  alert(
-    'Rhodes Port Tracker — Ports & vessels.\n\n' +
-      'Alex of Rhodes\n' +
-      'alexofrhodes@gmail.com\n' +
-      'https://github.com/alexofrhodes\n\n' +
-      (isStaticHost()
-        ? 'GitHub Pages is read-only (map + vessel table from published cache).'
-        : 'Facility overrides save to docs/data/vessel_ports.json (shared with the GUI).'),
-  );
+  openAbout({
+    desc: isStaticHost()
+      ? 'Ports & vessels map from the published cache (GitHub Pages is read-only).'
+      : 'Ports & vessels map — facility overrides save to the shared docs/data cache.',
+    showQr: true,
+  });
 });
 loadHubs();
 load();
